@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
-    <artifactId>AsyncTask</artifactId>
+    <groupId>com.jzp</groupId>
+    <artifactId>task-revolver</artifactId>
     <version>1.0-SNAPSHOT</version>
     <build>
         <plugins>
@@ -64,13 +64,10 @@
 
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-            <version>5.2.3.RELEASE</version>
-            <scope>compile</scope>
+            <artifactId>spring-context</artifactId>
+            <version>5.3.4</version>
         </dependency>
 
-
     </dependencies>
-
 
 </project>

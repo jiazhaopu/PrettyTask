@@ -1,4 +1,4 @@
-package com.jzp.task.revolver;
+package com.jzp.task.revolver.handler;
 
 public interface ITaskHandler {
 

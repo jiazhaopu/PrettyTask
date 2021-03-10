@@ -1,4 +1,4 @@
-package com.jzp.task.revolver;
+package com.jzp.task.revolver.executor;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;

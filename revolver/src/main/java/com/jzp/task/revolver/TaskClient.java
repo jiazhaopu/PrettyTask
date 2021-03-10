@@ -1,5 +1,6 @@
 package com.jzp.task.revolver;
 
+import com.jzp.task.revolver.context.Config;
 import com.jzp.task.revolver.model.TaskInfo;
 
 import java.util.List;

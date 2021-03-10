@@ -1,7 +1,8 @@
 package com.jzp.task.revolver.register;
 
-import com.jzp.task.revolver.Context;
-import com.jzp.task.revolver.ILogger;
+import com.jzp.task.revolver.context.Context;
+import com.jzp.task.revolver.executor.ThreadPoolHelper;
+import com.jzp.task.revolver.log.ILogger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.NodeCache;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class RegisterCenter {
 
@@ -136,6 +138,13 @@ public class RegisterCenter {
     createNodePath();
     createNodePath();
     createNodePath();
+
+  }
+
+  public void beatsAndWatcher() throws Exception {
+    ThreadPoolHelper.schedulePool.scheduleAtFixedRate(new BeatThread(), Context.getConfig().getBeatPeriod(),
+        Context.getConfig().getBeatPeriod(), TimeUnit.MILLISECONDS);
+    new Watcher().start(getModulePath());
   }
 
   public Boolean setDataForEphe(String configInfo) {

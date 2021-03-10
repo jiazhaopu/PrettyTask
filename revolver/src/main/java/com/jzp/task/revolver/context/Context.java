@@ -1,5 +1,8 @@
-package com.jzp.task.revolver;
+package com.jzp.task.revolver.context;
 
+import com.jzp.task.revolver.TaskProcessor;
+import com.jzp.task.revolver.TaskStorage;
+import com.jzp.task.revolver.constants.State;
 import com.jzp.task.revolver.failover.FailOverItem;
 import com.jzp.task.revolver.register.RegisterCenter;
 import com.jzp.task.revolver.register.ZookeeperClient;
@@ -30,7 +33,7 @@ public class Context {
 
   private static TaskStorage taskStorage;
 
-  private static DelayQueue<FailOverItem> failOverDelayQueue = new DelayQueue<>();
+  private static final DelayQueue<FailOverItem> failOverDelayQueue = new DelayQueue<>();
 
   public static Config getConfig() {
     return config;
@@ -79,7 +82,6 @@ public class Context {
     return (int) (timeStamp / 1000 % config.getTimeWheelLength());
   }
 
-
   public static TaskStorage getTaskStorage() {
     return taskStorage;
   }
@@ -102,25 +104,6 @@ public class Context {
 
   public static void setRegisterCenter(RegisterCenter registerCenter) {
     Context.registerCenter = registerCenter;
-  }
-
-  public static void main(String[] args) {
-
-    ConcurrentSkipListSet<Integer> skipListSet = new ConcurrentSkipListSet<>();
-
-    skipListSet.add(1);
-    skipListSet.add(1);
-
-    System.out.println(skipListSet.size());
-    Integer i = skipListSet.pollFirst();
-
-    System.out.println(skipListSet.size());
-
-
-//    Set<Integer> set = Collections.synchronizedSet(new HashSet<>());
-//    set.add(1);
-//    set.contains(1);
-//    set.iterator().hasNext();
   }
 }
 

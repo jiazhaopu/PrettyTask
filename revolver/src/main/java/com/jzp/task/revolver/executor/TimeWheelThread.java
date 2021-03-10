@@ -1,6 +1,13 @@
-package com.jzp.task.revolver;
+package com.jzp.task.revolver.executor;
 
+import com.jzp.task.revolver.constants.TaskStatus;
+import com.jzp.task.revolver.context.Context;
+import com.jzp.task.revolver.handler.ITaskCallBack;
+import com.jzp.task.revolver.handler.TaskExecuteCallBack;
+import com.jzp.task.revolver.log.ILogger;
 import com.jzp.task.revolver.model.TaskInfo;
+import com.jzp.task.revolver.utils.CronUtil;
+import com.jzp.task.revolver.utils.IPUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +25,7 @@ public class TimeWheelThread extends Thread implements ILogger {
 
   public void run() {
     System.out.println("TimeWheelThread State=" + Context.getState().get());
-    while (com.jzp.task.revolver.State.RUNNING.equals(Context.getState().get())) {
+    while (com.jzp.task.revolver.constants.State.RUNNING.equals(Context.getState().get())) {
       sleepToNextSecond();
       long time = System.currentTimeMillis();
       ConcurrentSkipListSet<Integer> queue = Context.getWheelCluster(time);
@@ -44,7 +51,7 @@ public class TimeWheelThread extends Thread implements ILogger {
         if (shouldDo) {
 //              System.out.println("shouldDo id="+id+", taskSec="+Context.getTimeWheelIndex(time)+", nowSec="+Context.getTimeWheelIndex(time));
           try {
-            ExecutePools.getInstance().submit(taskInfo, taskCaller);
+            ExecutePool.getInstance().submit(taskInfo, taskCaller);
           } catch (Exception e) {
 //                System.out.println(taskInfo.toString());
 //                e.printStackTrace();

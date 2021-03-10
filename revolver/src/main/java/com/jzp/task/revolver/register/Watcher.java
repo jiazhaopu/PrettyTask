@@ -1,6 +1,7 @@
 package com.jzp.task.revolver.register;
 
-import com.jzp.task.revolver.Context;
+import com.jzp.task.revolver.context.Context;
+import com.jzp.task.revolver.executor.ThreadPoolHelper;
 import com.jzp.task.revolver.failover.FailOverItem;
 import com.jzp.task.revolver.failover.FailOverProcess;
 import org.apache.curator.framework.CuratorFramework;
@@ -27,7 +28,7 @@ public class Watcher {
       public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
         System.out.println("节点数据变化,类型:" + event.getType() + ",路径:" + event.getData().getPath());
         Context.addFailOverQueue(new FailOverItem(event, 10, TimeUnit.SECONDS));
-        FailOverProcess.process();
+        ThreadPoolHelper.submitToFailOverPool(new FailOverProcess());
       }
     });
   }

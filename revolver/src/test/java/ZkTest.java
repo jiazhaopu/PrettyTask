@@ -1,25 +1,14 @@
-import com.jzp.task.revolver.Config;
-import com.jzp.task.revolver.Context;
 import com.jzp.task.revolver.DBDataSource;
-import com.jzp.task.revolver.IPUtils;
-import com.jzp.task.revolver.ScheduleType;
 import com.jzp.task.revolver.TaskClient;
+import com.jzp.task.revolver.constants.ScheduleType;
+import com.jzp.task.revolver.context.Config;
 import com.jzp.task.revolver.model.TaskInfo;
-import com.jzp.task.revolver.register.RegisterCenter;
-import com.jzp.task.revolver.register.ZookeeperClient;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.api.CuratorEvent;
-import org.apache.curator.framework.api.CuratorListener;
-import org.apache.curator.framework.recipes.cache.NodeCache;
-import org.apache.curator.framework.recipes.cache.NodeCacheListener;
+import com.jzp.task.revolver.utils.IPUtils;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.UUID;
 
 public class ZkTest {
+
 
   public static void main(String[] args) throws Exception {
 
@@ -34,7 +23,7 @@ public class ZkTest {
     config.setProduct("sfn");
     config.setModule("web");
 
-    TaskClient taskClient = new TaskClient(Collections.singletonList(source),config);
+    TaskClient taskClient = new TaskClient(Collections.singletonList(source), config);
     taskClient.init();
 //
 //    ZookeeperClient client = Context.getZookeeperClient();
@@ -58,11 +47,11 @@ public class ZkTest {
 //
 //    client.watch(registerCenter.getModulePath());
 
-    for (int i=0;i<20;i++){
+    for (int i = 0; i < 20; i++) {
 
-      TaskInfo taskInfo =new TaskInfo();
-      taskInfo.setContent(i+"");
-      taskInfo.setHandler(""+i);
+      TaskInfo taskInfo = new TaskInfo();
+      taskInfo.setContent(i + "");
+      taskInfo.setHandler("" + i);
       taskInfo.setHost(IPUtils.getHostAddress());
       taskInfo.setMaxExecuteTimes(10);
       taskInfo.setScheduleType(ScheduleType.RETRY.getCode());

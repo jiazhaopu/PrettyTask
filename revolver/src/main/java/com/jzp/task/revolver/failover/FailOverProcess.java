@@ -1,10 +1,10 @@
 package com.jzp.task.revolver.failover;
 
-import com.jzp.task.revolver.Context;
-import com.jzp.task.revolver.IPUtils;
+import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.model.TaskInfo;
 import com.jzp.task.revolver.register.RegisterCenter;
 import com.jzp.task.revolver.register.ZookeeperClient;
+import com.jzp.task.revolver.utils.IPUtils;
 import org.apache.curator.framework.CuratorFramework;
 
 import java.util.ArrayList;
@@ -13,14 +13,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class FailOverProcess {
+public class FailOverProcess implements Runnable {
 
-  public static void process() {
+  @Override
+  public void run() {
+    process();
+  }
+
+  private void process() {
     ZookeeperClient client = Context.getZookeeperClient();
     String path = Context.getRegisterCenter().getModulePath();
     CuratorFramework curatorFramework = client.getCuratorFramework();
-    System.out.println(Context.getDelayQueue().size());
-    System.out.println(Context.getDelayQueue().isEmpty());
     Set<String> availableHost = new HashSet<>();
     while (!Context.getDelayQueue().isEmpty()) {
       try {
@@ -32,16 +35,14 @@ public class FailOverProcess {
         System.out.println("++++ data=+" + data + ", path=" + path);
 //        ChildData childData = nodeCache.getCurrentData();
 //        String s = new String(childData.getData());
-        System.out.println(Context.getDelayQueue().size());
+//        System.out.println(Context.getDelayQueue().size());
         Context.getDelayQueue().take();
         List<String> list = curatorFramework.getChildren().forPath(path);
         System.out.println(list);
         for (String children : list) {
           String childrenPath = ZookeeperClient.getPath(path, children);
-          o = registerCenter.getConfig(ZookeeperClient.getPath(path, children));
-          System.out.println(
-              "=== o=" + (o == null ? null : o.toString()) + ", path=" + path + children + ", childrenData="
-                  + client.getData(childrenPath));
+          System.out.println("path = " + path + children + ", childrenData = "
+              + client.getData(childrenPath));
           availableHost.add(client.getData(childrenPath));
         }
 
@@ -54,7 +55,7 @@ public class FailOverProcess {
   }
 
 
-  private static List<Integer> failover(Set<String> availableHost) {
+  private List<Integer> failover(Set<String> availableHost) {
 
     List<Integer> list = new ArrayList<>();
     try {
@@ -90,7 +91,7 @@ public class FailOverProcess {
   }
 
 
-  private static List<TaskInfo> getWaitingTas() throws Exception {
+  private List<TaskInfo> getWaitingTas() throws Exception {
     return Context.getTaskStorage().getWaitingTask();
   }
 

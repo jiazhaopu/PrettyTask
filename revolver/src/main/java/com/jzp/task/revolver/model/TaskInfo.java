@@ -1,6 +1,6 @@
 package com.jzp.task.revolver.model;
 
-import com.jzp.task.revolver.TaskStatus;
+import com.jzp.task.revolver.constants.TaskStatus;
 
 import java.util.Date;
 

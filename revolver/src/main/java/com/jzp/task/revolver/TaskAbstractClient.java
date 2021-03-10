@@ -1,9 +1,12 @@
 package com.jzp.task.revolver;
 
+import com.jzp.task.revolver.constants.State;
+import com.jzp.task.revolver.context.Config;
+import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.model.TaskInfo;
 import com.jzp.task.revolver.register.RegisterCenter;
-import com.jzp.task.revolver.register.Watcher;
 import com.jzp.task.revolver.register.ZookeeperClient;
+import com.jzp.task.revolver.utils.CronUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,22 +41,19 @@ public abstract class TaskAbstractClient {
       log.info("TransactionTaskClient have inited, return");
       return;
     }
-    taskStorage.init();
-    taskProcessor.init();
     ZookeeperClient client = new ZookeeperClient(Context.getConfig());
     RegisterCenter registerCenter = new RegisterCenter(client);
     Context.setZookeeperClient(client);
     Context.setRegisterCenter(registerCenter);
+    taskStorage.init();
+    taskProcessor.init();
     Context.setTaskProcessor(taskProcessor);
     Context.setTaskStorage(taskStorage);
-
     registerCenter.registerNode();
-
-    new Watcher().start(registerCenter.getModulePath());
-    log.info("end init success");
-
-    Context.getState().compareAndSet(State.CREATE, State.RUNNING);
+    registerCenter.beatsAndWatcher();
     taskProcessor.reloadTask();
+    Context.getState().compareAndSet(State.CREATE, State.RUNNING);
+    log.info("end init success");
   }
 
 

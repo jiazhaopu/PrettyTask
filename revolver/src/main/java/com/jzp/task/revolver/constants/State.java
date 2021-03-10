@@ -1,4 +1,4 @@
-package com.jzp.task.revolver;
+package com.jzp.task.revolver.constants;
 
 public enum State {
 

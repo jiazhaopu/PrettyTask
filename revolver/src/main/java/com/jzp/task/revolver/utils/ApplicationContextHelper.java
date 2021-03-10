@@ -1,4 +1,4 @@
-package com.jzp.task.revolver;
+package com.jzp.task.revolver.utils;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

@@ -1,5 +1,6 @@
-package com.jzp.task.revolver;
+package com.jzp.task.revolver.utils;
 
+import com.jzp.task.revolver.constants.ScheduleType;
 import com.jzp.task.revolver.model.TaskInfo;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;

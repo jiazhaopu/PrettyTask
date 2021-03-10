@@ -1,7 +1,7 @@
 package com.jzp.task.revolver.register;
 
-import com.jzp.task.revolver.Config;
-import com.jzp.task.revolver.ILogger;
+import com.jzp.task.revolver.context.Config;
+import com.jzp.task.revolver.log.ILogger;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.NodeCache;

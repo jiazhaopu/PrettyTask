@@ -1,49 +1,38 @@
 package com.jzp.task.revolver;
 
+import com.jzp.task.revolver.constants.State;
+import com.jzp.task.revolver.context.Context;
+import com.jzp.task.revolver.executor.ShardThread;
+import com.jzp.task.revolver.executor.ThreadPoolHelper;
+import com.jzp.task.revolver.executor.TimeWheelThread;
+import com.jzp.task.revolver.log.ILogger;
 import com.jzp.task.revolver.model.TaskInfo;
-import com.jzp.task.revolver.register.BeatThread;
+import com.jzp.task.revolver.utils.CronUtil;
 
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 public class TaskProcessor implements ILogger {
 
 
-  private ScheduledExecutorService scheduleService;
-
   public void init() {
-//    if (State.RUNNING.equals(Context.getState().get())) {
-//      return;
-//    }
     Context.getState().compareAndSet(State.CREATE, State.RUNNING);
-    scheduleService = Executors.newScheduledThreadPool(Context.getConfig().getSchedThreadNum(), new ThreadFactory() {
-      @Override
-      public Thread newThread(Runnable r) {
-        return new Thread(r, "RevolverScheduledThread");
-      }
-    });
-
     new TimeWheelThread().start();
-
-    scheduleService.scheduleAtFixedRate(new ShardThread(), Context.getConfig().getShardPeriod(),
+    ThreadPoolHelper.schedulePool.scheduleAtFixedRate(new ShardThread(), Context.getConfig().getShardPeriod(),
         Context.getConfig().getShardPeriod(), TimeUnit.MILLISECONDS);
-    scheduleService.scheduleAtFixedRate(new BeatThread(), Context.getConfig().getBeatPeriod(),
-        Context.getConfig().getBeatPeriod(), TimeUnit.MILLISECONDS);
+
   }
 
   public void close() {
     try {
-      scheduleService.awaitTermination(Context.getConfig().getCloseWaitTime(), TimeUnit.MILLISECONDS);
+      ThreadPoolHelper.schedulePool.awaitTermination(Context.getConfig().getCloseWaitTime(), TimeUnit.MILLISECONDS);
     } catch (Exception e) {
       logException("", e);
     }
-    if (!scheduleService.isShutdown())
-      scheduleService.shutdownNow();
+    if (!ThreadPoolHelper.schedulePool.isShutdown())
+      ThreadPoolHelper.schedulePool.shutdownNow();
   }
 
   public void put(TaskInfo taskInfo) {

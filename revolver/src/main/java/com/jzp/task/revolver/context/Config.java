@@ -1,24 +1,35 @@
-package com.jzp.task.revolver;
+package com.jzp.task.revolver.context;
 
 import org.apache.commons.lang3.StringUtils;
 
 public class Config {
 
-  private int corePoolSize = Runtime.getRuntime().availableProcessors();
-
-  private int maxPoolSize = Runtime.getRuntime().availableProcessors() * 2;
-
-  private int schedThreadNum = 2;
+  // ==================== mysql 配置开始 =================
   private int minIdleConnectionNum = 6;
   private int maxActiveConnectionNum = 20;
   private int schedScanTimePeriod = 120;// 120s扫描一次，待发送的继续发送
   private int maxWaitTime = 6000; // mysql 连接池，拿连接的等待时间
+  // ==================== mysql 配置结束 =================
+
+  // ==================== 线程池配置开始 ===================
+  private int corePoolSize = Runtime.getRuntime().availableProcessors();
+
+  private int maxPoolSize = Runtime.getRuntime().availableProcessors() * 2;
+
+  private int queueLength = 1000;
+
+  private int executePoolsNum = 5;
+
+  private int schedThreadNum = 2;
+
   private int closeWaitTime = 5000;
 
   private int timeWheelLength = 60;
 
   private long shardPeriod = 1000 * 60;
+  // ==================== 线程池配置结束 ===================
 
+  // ==================== zookeeper 注册中心配置开始 =======
   private String product;
 
   private String module;
@@ -34,6 +45,8 @@ public class Config {
   private String zookeeperRetryInterval = "1000";
 
   private String zookeeperRetryTimes = "3";
+
+  // ==================== zookeeper 注册中心配置结束 =======
 
   public long getShardPeriod() {
     return shardPeriod;
@@ -185,5 +198,21 @@ public class Config {
       return Integer.parseInt(zookeeperSessionTimeout) * 2 / 3;
     }
     return 1000;
+  }
+
+  public int getExecutePoolsNum() {
+    return executePoolsNum;
+  }
+
+  public void setExecutePoolsNum(int executePoolsNum) {
+    this.executePoolsNum = executePoolsNum;
+  }
+
+  public int getQueueLength() {
+    return queueLength;
+  }
+
+  public void setQueueLength(int queueLength) {
+    this.queueLength = queueLength;
   }
 }

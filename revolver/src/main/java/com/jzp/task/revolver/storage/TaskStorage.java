@@ -1,9 +1,8 @@
-package com.jzp.task.revolver;
+package com.jzp.task.revolver.storage;
 
 import com.jzp.task.revolver.constants.ScheduleType;
 import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.log.ILogger;
-import com.jzp.task.revolver.model.TaskInfo;
 import com.jzp.task.revolver.utils.CronUtil;
 import com.jzp.task.revolver.utils.IPUtils;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -250,62 +249,7 @@ public class TaskStorage implements ILogger {
       }
     }
   }
-//
-//    public Long getMinIdOfWaitingTask(DataSource dataSrc) throws SQLException{
-//        try (Connection con = dataSrc.getConnection()) {
-//            PreparedStatement psmt = con.prepareStatement(selectMinIdOfWaitingSQL);
-//            psmt.setInt(1, WAITING);
-//            Long minId = null;
-//            ResultSet rs = psmt.executeQuery();
-//            if (rs.next()) {
-//                minId = rs.getLong(1);
-//            }
-//            return minId;
-//        } catch (SQLException ex) {
-//            logException(ex);
-//            throw ex;
-//        }
-//    }
 
-  /**
-   * //     * @param pageSize
-   *
-   * @return
-   * @throws java.sql.SQLException
-   */
-//    public List<TaskInfo> getTasks(int pageSize, int status) throws Exception{
-//        DataSource master = getDataSource(false);
-//        Connection con = null;
-//        try {
-//            con = master.getConnection();
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
-//        try {
-//            assert con != null;
-//            PreparedStatement psmt = con.prepareStatement(selectWaitingSQL);
-//            psmt.setInt(1, status);
-//            psmt.setString(2,IPUtils.getHostName());
-//            psmt.setLong(3,System.currentTimeMillis());
-//            psmt.setInt(4, pageSize);
-//            ResultSet rs = psmt.executeQuery();
-//            List<TaskInfo> list = new ArrayList<TaskInfo>(pageSize);
-//            while (rs.next()) {
-//                TaskInfo task = getTask(rs);
-//                if (task!=null){
-//                    list.add(task);
-//                }
-//            }
-//            log.info("listSize:{},getTasks:{}",list.size(),psmt.toString());
-//            return list;
-//        } catch (Exception ex) {
-//            logException(ex);
-//            throw ex;
-//        } finally {
-//            if (con != null)
-//                con.close();
-//        }
-//    }
   public HashMap<String, DataSource> getDataSourcesMap() {
     return dataSourcesMap;
   }

@@ -1,8 +1,8 @@
-import com.jzp.task.revolver.DBDataSource;
 import com.jzp.task.revolver.TaskClient;
 import com.jzp.task.revolver.constants.ScheduleType;
 import com.jzp.task.revolver.context.Config;
-import com.jzp.task.revolver.model.TaskInfo;
+import com.jzp.task.revolver.storage.DBDataSource;
+import com.jzp.task.revolver.storage.TaskInfo;
 import com.jzp.task.revolver.utils.IPUtils;
 
 import java.util.Collections;

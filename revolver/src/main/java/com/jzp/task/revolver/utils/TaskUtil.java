@@ -1,7 +1,7 @@
 package com.jzp.task.revolver.utils;
 
 import com.jzp.task.revolver.constants.ScheduleType;
-import com.jzp.task.revolver.model.TaskInfo;
+import com.jzp.task.revolver.storage.TaskInfo;
 
 public class TaskUtil {
 

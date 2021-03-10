@@ -6,7 +6,7 @@ import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.handler.ITaskCallBack;
 import com.jzp.task.revolver.handler.TaskExecuteCallBack;
 import com.jzp.task.revolver.log.ILogger;
-import com.jzp.task.revolver.model.TaskInfo;
+import com.jzp.task.revolver.storage.TaskInfo;
 import com.jzp.task.revolver.utils.CronUtil;
 import com.jzp.task.revolver.utils.IPUtils;
 import org.slf4j.Logger;

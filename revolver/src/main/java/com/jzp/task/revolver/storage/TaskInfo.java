@@ -1,4 +1,4 @@
-package com.jzp.task.revolver.model;
+package com.jzp.task.revolver.storage;
 
 import com.jzp.task.revolver.constants.TaskStatus;
 

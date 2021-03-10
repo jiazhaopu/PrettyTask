@@ -4,7 +4,7 @@ import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.handler.ITaskCallBack;
 import com.jzp.task.revolver.handler.ITaskHandler;
 import com.jzp.task.revolver.handler.TaskHandler;
-import com.jzp.task.revolver.model.TaskInfo;
+import com.jzp.task.revolver.storage.TaskInfo;
 
 import java.util.Date;
 import java.util.concurrent.LinkedBlockingQueue;

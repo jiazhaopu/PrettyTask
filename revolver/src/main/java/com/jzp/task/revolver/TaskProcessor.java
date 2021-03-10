@@ -6,7 +6,7 @@ import com.jzp.task.revolver.executor.ShardThread;
 import com.jzp.task.revolver.executor.ThreadPoolHelper;
 import com.jzp.task.revolver.executor.TimeWheelThread;
 import com.jzp.task.revolver.log.ILogger;
-import com.jzp.task.revolver.model.TaskInfo;
+import com.jzp.task.revolver.storage.TaskInfo;
 import com.jzp.task.revolver.utils.CronUtil;
 
 import java.util.Date;

@@ -1,9 +1,8 @@
 package com.jzp.task.revolver.failover;
 
 import com.jzp.task.revolver.context.Context;
-import com.jzp.task.revolver.model.TaskInfo;
-import com.jzp.task.revolver.register.RegisterCenter;
 import com.jzp.task.revolver.register.ZookeeperClient;
+import com.jzp.task.revolver.storage.TaskInfo;
 import com.jzp.task.revolver.utils.IPUtils;
 import org.apache.curator.framework.CuratorFramework;
 
@@ -27,15 +26,8 @@ public class FailOverProcess implements Runnable {
     Set<String> availableHost = new HashSet<>();
     while (!Context.getDelayQueue().isEmpty()) {
       try {
-//        NodeCache nodeCache = client.registerNodeCache(path);
-        RegisterCenter registerCenter = new RegisterCenter(client);
-        Object o = registerCenter.getConfig(path);
-        System.out.println("+++++" + o.toString() + ", path=" + path);
         String data = client.getData(path);
         System.out.println("++++ data=+" + data + ", path=" + path);
-//        ChildData childData = nodeCache.getCurrentData();
-//        String s = new String(childData.getData());
-//        System.out.println(Context.getDelayQueue().size());
         Context.getDelayQueue().take();
         List<String> list = curatorFramework.getChildren().forPath(path);
         System.out.println(list);

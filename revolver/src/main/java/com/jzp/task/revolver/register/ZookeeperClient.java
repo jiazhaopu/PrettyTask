@@ -22,13 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-/**
- * 连接Zookeeper的Client
- *
- * @author caojiang
- * @version 1.0.0
- * @since 15/5/14
- */
 public class ZookeeperClient implements AutoCloseable, DisposableBean {
 
   Logger log = LoggerFactory.getLogger(ILogger.class);
@@ -38,20 +31,13 @@ public class ZookeeperClient implements AutoCloseable, DisposableBean {
    */
   private static final int REGISTER_ROLE_RETRY_TIMES = 3;
   private static final int REGISTER_ROLE_TIMEOUT_SECONDS = 3;
-  private static final String SERVER_CONF = "server_conf";
-  private static final int ZOOKEEPER_SESSION_TIMEOUT = 20000;
-  private static final int ZOOKEEPER_CONNECT_TIMEOUT = 5000;
-  private static final int CURATOR_RETRY_TIMES = 3;
-  private static final int CURATOR_BASE_RETRY_INTERVAL = 1000;
-  private static final String ROOT_PATH_DEFAULT = "/sensors_analytics/";
-  // 对应着 curator 的 recipes 的含义
   private static final String RECIPES = "recipes";
-  private String zookeeperRootPath;
+  private final String zookeeperRootPath;
 
   /**
    * curator客户端
    */
-  private CuratorFramework curatorFramework;
+  private final CuratorFramework curatorFramework;
 
   /**
    * 存储所有的zk lock
@@ -110,15 +96,6 @@ public class ZookeeperClient implements AutoCloseable, DisposableBean {
     if (this.curatorFramework != null) {
       this.curatorFramework.close();
     }
-  }
-
-
-  public synchronized NodeCache registerNodeCache(String path) throws Exception {
-    // http://curator.apache.org/curator-recipes/path-cache.html
-    NodeCache nodeCache = new NodeCache(curatorFramework, path);
-    nodeCache.start(true);
-    nodeCacheList.add(nodeCache);
-    return nodeCache;
   }
 
   /**
@@ -255,11 +232,6 @@ public class ZookeeperClient implements AutoCloseable, DisposableBean {
         .forPath(path), StandardCharsets.UTF_8);
   }
 
-  public String getServerModuleConfig(String module) throws Exception {
-    String zkPath = getPath(this.zookeeperRootPath, SERVER_CONF, module);
-    return this.getData(zkPath);
-  }
-
   public boolean tryRegisterModule(final String moduleName) {
     String moduleNameLower = moduleName.toLowerCase();
     String path = getPath(this.zookeeperRootPath, moduleNameLower);
@@ -380,24 +352,6 @@ public class ZookeeperClient implements AutoCloseable, DisposableBean {
     return Paths.get(zookeeperRootPath, productName, RECIPES, recipeKey)
         .toString();
   }
-
-//  public void watch(String path) throws Exception {
-////    List<String> list = curatorFramework.getChildren().forPath("/msg_node_list");
-////遍历list中的每一个临时子节点后调用如下代码，参数为list中取出的临时节点名称：
-//    curatorFramework.getChildren().usingWatcher(new Watcher() {
-//      @Override
-//      public void process(WatchedEvent watchedEvent) {
-//        Event.EventType type = watchedEvent.getType();
-//        System.out.println("============= watch type"+type);
-//        System.out.println("============= watch "+watchedEvent.getPath());
-//        if (type.equals(Event.EventType.NodeDeleted)) {
-//          System.out.println(watchedEvent.getPath());
-//        }
-//        Context.addFailOverQueue(new FailOverItem(20,TimeUnit.SECONDS));
-//        FailOverProcess.process();
-//      }
-//    }).forPath(path);
-//  }
 
   /**
    * 获取一个锁的 Zk Path

@@ -1,10 +1,12 @@
 package com.jzp.task.revolver;
 
+import com.jzp.task.revolver.constants.ScheduleType;
 import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.log.ILogger;
 import com.jzp.task.revolver.model.TaskInfo;
 import com.jzp.task.revolver.utils.CronUtil;
 import com.jzp.task.revolver.utils.IPUtils;
+import com.jzp.task.revolver.utils.TaskUtil;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,6 +133,11 @@ public class TaskStorage implements ILogger {
   }
 
   public TaskInfo register(TaskInfo taskInfo) throws Exception {
+
+    TaskUtil.check(taskInfo);
+    if (ScheduleType.FIXED_TIME.getCode().equals(taskInfo.getScheduleType())) {
+      taskInfo.setMaxExecuteTimes(1);
+    }
 
     taskInfo.setNextTime(CronUtil.nextExecuteTime(taskInfo));
 

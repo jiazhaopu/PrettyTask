@@ -7,6 +7,7 @@ import com.jzp.task.revolver.model.TaskInfo;
 import com.jzp.task.revolver.register.RegisterCenter;
 import com.jzp.task.revolver.register.ZookeeperClient;
 import com.jzp.task.revolver.utils.CronUtil;
+import com.jzp.task.revolver.utils.TaskUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ public abstract class TaskAbstractClient {
    */
   public void init() throws Exception {
     if (ServerState.RUNNING.equals(Context.getState().get())) {
-      log.info("TransactionTaskClient have inited, return");
+      log.info("Revolver have inited, return");
       return;
     }
     ZookeeperClient client = new ZookeeperClient(Context.getConfig());
@@ -58,7 +59,7 @@ public abstract class TaskAbstractClient {
 
 
   public void close() {
-    log.info("start close TransactionTaskClient");
+    log.info("start close Revolver TaskClient");
     if (Context.getState().compareAndSet(ServerState.RUNNING, ServerState.CLOSED)) {
       taskStorage.close();
       taskProcessor.close();
@@ -76,12 +77,13 @@ public abstract class TaskAbstractClient {
    */
   protected TaskInfo register(TaskInfo taskInfo) throws Exception {
     if (!Context.getState().get().equals(ServerState.RUNNING)) {
-      log.error("TransactionTaskClient not Running , please call init function");
-      throw new Exception("TransactionTaskClient not Running , please call init function");
+      log.error("Revolver not Running , please call init function");
+      throw new Exception("Revolver TaskClient not Running , please call init function");
     }
     if (!CronUtil.checkCron(taskInfo)) {
       throw new Exception("cron is not valid");
     }
+    TaskUtil.check(taskInfo);
     try {
       taskInfo = taskStorage.register(taskInfo);
 //      System.out.println("register taskInfo=" + taskInfo.toString() + ", nextTime"

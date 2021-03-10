@@ -30,7 +30,7 @@ public class CronUtil {
         || taskInfo.getNextTime() == 0)) {
       return false;
     }
-    
+
     return true;
   }
 
@@ -52,5 +52,14 @@ public class CronUtil {
     }
 //   System.out.println("resetTime="+resetTime+", sec="+Context.getTimeWheelIndex(resetTime)+", now="+(Context.getCurrentTimeWheelIndex()));
     return resetTime;
+  }
+
+  public static long nextExecuteTimeWithoutException(TaskInfo taskInfo) {
+    try {
+      return nextExecuteTime(taskInfo);
+    } catch (Exception e) {
+      log.error("nextExecuteTime err. [taskInfo='{}']", taskInfo.toString(), e);
+    }
+    return taskInfo.getNextTime();
   }
 }

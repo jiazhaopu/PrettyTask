@@ -1,6 +1,7 @@
 package com.jzp.task.revolver;
 
 import com.jzp.task.revolver.context.Config;
+import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.storage.DBDataSource;
 import com.jzp.task.revolver.storage.TaskInfo;
 
@@ -15,6 +16,7 @@ public class TaskClient extends TaskAbstractClient {
   @Override
   public void init() throws Exception {
     super.init();
+    Context.setTaskClient(this);
   }
 
   @Override

@@ -1,5 +1,6 @@
 package com.jzp.task.revolver.context;
 
+import com.jzp.task.revolver.TaskAbstractClient;
 import com.jzp.task.revolver.TaskProcessor;
 import com.jzp.task.revolver.constants.ServerState;
 import com.jzp.task.revolver.failover.FailOverItem;
@@ -18,6 +19,8 @@ public class Context {
   private static ZookeeperClient zookeeperClient;
 
   private static RegisterCenter registerCenter;
+
+  private static TaskAbstractClient taskClient;
 
   private static final ConcurrentSkipListSet[] timeWheel = new ConcurrentSkipListSet[getConfig().getTimeWheelLength()];
 
@@ -104,6 +107,14 @@ public class Context {
 
   public static void setRegisterCenter(RegisterCenter registerCenter) {
     Context.registerCenter = registerCenter;
+  }
+
+  public static TaskAbstractClient getTaskClient() {
+    return taskClient;
+  }
+
+  public static void setTaskClient(TaskAbstractClient taskClient) {
+    Context.taskClient = taskClient;
   }
 }
 

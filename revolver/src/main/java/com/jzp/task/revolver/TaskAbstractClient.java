@@ -77,7 +77,7 @@ public abstract class TaskAbstractClient {
    * @return
    * @throws Exception
    */
-  protected TaskInfo register(TaskInfo taskInfo) throws Exception {
+  public TaskInfo register(TaskInfo taskInfo) throws Exception {
     if (!Context.getState().get().equals(ServerState.RUNNING)) {
       log.error("Revolver not Running , please call init function");
       throw new Exception("Revolver TaskClient not Running , please call init function");

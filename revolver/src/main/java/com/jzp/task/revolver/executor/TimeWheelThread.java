@@ -1,5 +1,6 @@
 package com.jzp.task.revolver.executor;
 
+import com.jzp.task.revolver.constants.ServerState;
 import com.jzp.task.revolver.constants.TaskStatus;
 import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.handler.ITaskCallBack;
@@ -24,8 +25,7 @@ public class TimeWheelThread extends Thread implements ILogger {
   private ITaskCallBack taskCaller = new TaskExecuteCallBack();
 
   public void run() {
-    System.out.println("TimeWheelThread State=" + Context.getState().get());
-    while (com.jzp.task.revolver.constants.State.RUNNING.equals(Context.getState().get())) {
+    while (ServerState.RUNNING.equals(Context.getState().get())) {
       sleepToNextSecond();
       long time = System.currentTimeMillis();
       ConcurrentSkipListSet<Integer> queue = Context.getWheelCluster(time);
@@ -33,7 +33,9 @@ public class TimeWheelThread extends Thread implements ILogger {
       while (!queue.isEmpty()) {
         list.add(queue.pollFirst());
       }
-//        System.out.println(" while before poll listSize="+list.size()+"， queueSize="+queue.size()+" ,nowSec="+Context.getTimeWheelIndex(time)+"， now="+new Date(time));
+
+      System.out.println(" while before poll listSize=" + list.size() + "， queueSize=" + queue.size() + " ,nowSec="
+          + Context.getTimeWheelIndex(time) + "， now=" + new Date(time));
 //        System.out.println("sec = "+Context.getCurrentTimeWheelIndex()+" after poll size="+queue.size()+", task="+Context.getTimeWheelIndex(task.getNextTime()));
 //        System.out.println(" before while poll size="+queue.size()+"， empty="+queue.isEmpty());
       for (Integer id : list) {
@@ -80,6 +82,7 @@ public class TimeWheelThread extends Thread implements ILogger {
 
   private void sleepToNextSecond() {
     try {
+      System.out.println("========= sleepToNextSecond =========");
       long sleep = 1000 - System.currentTimeMillis() % 1000;
       TimeUnit.MILLISECONDS.sleep(sleep);
     } catch (InterruptedException e) {

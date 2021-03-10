@@ -1,6 +1,6 @@
 package com.jzp.task.revolver;
 
-import com.jzp.task.revolver.constants.State;
+import com.jzp.task.revolver.constants.ServerState;
 import com.jzp.task.revolver.context.Config;
 import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.model.TaskInfo;
@@ -29,7 +29,7 @@ public abstract class TaskAbstractClient {
     if (config != null) {
       Context.setConfig(config);
     }
-    Context.getState().set(State.CREATE);
+    Context.getState().set(ServerState.CREATE);
   }
 
 
@@ -37,7 +37,7 @@ public abstract class TaskAbstractClient {
    * 初始化内部mysql 连接池，线程池等
    */
   public void init() throws Exception {
-    if (State.RUNNING.equals(Context.getState().get())) {
+    if (ServerState.RUNNING.equals(Context.getState().get())) {
       log.info("TransactionTaskClient have inited, return");
       return;
     }
@@ -52,14 +52,14 @@ public abstract class TaskAbstractClient {
     registerCenter.registerNode();
     registerCenter.beatsAndWatcher();
     taskProcessor.reloadTask();
-    Context.getState().compareAndSet(State.CREATE, State.RUNNING);
+    Context.getState().compareAndSet(ServerState.CREATE, ServerState.RUNNING);
     log.info("end init success");
   }
 
 
   public void close() {
     log.info("start close TransactionTaskClient");
-    if (Context.getState().compareAndSet(State.RUNNING, State.CLOSED)) {
+    if (Context.getState().compareAndSet(ServerState.RUNNING, ServerState.CLOSED)) {
       taskStorage.close();
       taskProcessor.close();
     } else {
@@ -75,7 +75,7 @@ public abstract class TaskAbstractClient {
    * @throws Exception
    */
   protected TaskInfo register(TaskInfo taskInfo) throws Exception {
-    if (!Context.getState().get().equals(State.RUNNING)) {
+    if (!Context.getState().get().equals(ServerState.RUNNING)) {
       log.error("TransactionTaskClient not Running , please call init function");
       throw new Exception("TransactionTaskClient not Running , please call init function");
     }
@@ -84,7 +84,8 @@ public abstract class TaskAbstractClient {
     }
     try {
       taskInfo = taskStorage.register(taskInfo);
-
+//      System.out.println("register taskInfo=" + taskInfo.toString() + ", nextTime"
+//          + "=" + new Date(taskInfo.getNextTime()));
       taskProcessor.put(taskInfo);
     } catch (Exception ex) {
       // TODO Auto-generated catch block

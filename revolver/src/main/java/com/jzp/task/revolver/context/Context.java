@@ -2,7 +2,7 @@ package com.jzp.task.revolver.context;
 
 import com.jzp.task.revolver.TaskProcessor;
 import com.jzp.task.revolver.TaskStorage;
-import com.jzp.task.revolver.constants.State;
+import com.jzp.task.revolver.constants.ServerState;
 import com.jzp.task.revolver.failover.FailOverItem;
 import com.jzp.task.revolver.register.RegisterCenter;
 import com.jzp.task.revolver.register.ZookeeperClient;
@@ -27,7 +27,7 @@ public class Context {
     }
   }
 
-  private static AtomicReference<State> state = new AtomicReference<>();
+  private static AtomicReference<ServerState> state = new AtomicReference<>();
 
   private static TaskProcessor taskProcessor;
 
@@ -43,11 +43,11 @@ public class Context {
     Context.config = config;
   }
 
-  public static AtomicReference<State> getState() {
+  public static AtomicReference<ServerState> getState() {
     return state;
   }
 
-  public static void setState(AtomicReference<State> state) {
+  public static void setState(AtomicReference<ServerState> state) {
     Context.state = state;
   }
 

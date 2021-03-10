@@ -1,6 +1,6 @@
 package com.jzp.task.revolver.constants;
 
-public enum State {
+public enum ServerState {
 
   /**
    * Service just created,not start

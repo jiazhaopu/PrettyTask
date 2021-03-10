@@ -2,7 +2,6 @@ package com.jzp.task.revolver.utils;
 
 import com.jzp.task.revolver.constants.ScheduleType;
 import com.jzp.task.revolver.model.TaskInfo;
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,7 @@ public class CronUtil {
         resetTime = nextDate.getTime();
       }
       if (ScheduleType.RETRY.getCode().equals(taskInfo.getScheduleType())) {
-        return System.currentTimeMillis() + RandomUtils.nextInt(1, 5) * 1000;
+        return System.currentTimeMillis() + 5 * 1000;
       }
       if (ScheduleType.FIXED_TIME.getCode().equals(taskInfo.getScheduleType())) {
         return taskInfo.getNextTime() == null ? 0 : taskInfo.getNextTime();

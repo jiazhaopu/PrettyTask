@@ -1,6 +1,6 @@
 package com.jzp.task.revolver;
 
-import com.jzp.task.revolver.constants.State;
+import com.jzp.task.revolver.constants.ServerState;
 import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.executor.ShardThread;
 import com.jzp.task.revolver.executor.ThreadPoolHelper;
@@ -18,7 +18,7 @@ public class TaskProcessor implements ILogger {
 
 
   public void init() {
-    Context.getState().compareAndSet(State.CREATE, State.RUNNING);
+    Context.getState().compareAndSet(ServerState.CREATE, ServerState.RUNNING);
     new TimeWheelThread().start();
     ThreadPoolHelper.schedulePool.scheduleAtFixedRate(new ShardThread(), Context.getConfig().getShardPeriod(),
         Context.getConfig().getShardPeriod(), TimeUnit.MILLISECONDS);

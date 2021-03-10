@@ -18,9 +18,9 @@ public class Config {
 
   private int queueLength = 1000;
 
-  private int executePoolsNum = 5;
+  private int executePoolsNum = 2;
 
-  private int schedThreadNum = 2;
+  private int scheduleThreadNum = 2;
 
   private int closeWaitTime = 5000;
 
@@ -56,13 +56,12 @@ public class Config {
     this.shardPeriod = shardPeriod;
   }
 
-
-  public int getSchedThreadNum() {
-    return schedThreadNum;
+  public int getScheduleThreadNum() {
+    return scheduleThreadNum;
   }
 
-  public void setSchedThreadNum(int schedThreadNum) {
-    this.schedThreadNum = schedThreadNum;
+  public void setScheduleThreadNum(int scheduleThreadNum) {
+    this.scheduleThreadNum = scheduleThreadNum;
   }
 
   public int getMinIdleConnectionNum() {

@@ -20,7 +20,7 @@ public class ThreadPoolHelper {
   });
 
   public static ScheduledExecutorService schedulePool =
-      Executors.newScheduledThreadPool(Context.getConfig().getSchedThreadNum(), new ThreadFactory() {
+      Executors.newScheduledThreadPool(Context.getConfig().getScheduleThreadNum(), new ThreadFactory() {
         @Override
         public Thread newThread(Runnable r) {
           return new Thread(r, "RevolverScheduledThread");

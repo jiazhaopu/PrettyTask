@@ -3,8 +3,6 @@ package com.jzp.task.revolver.register;
 import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.log.ILogger;
 
-import java.util.Date;
-
 /**
  * Prevent the heartbeat from disconnecting when the system is suspended or the network is shaking, and the node is lost
  * rebuild node after recovery
@@ -18,7 +16,7 @@ public class BeatThread implements Runnable, ILogger {
   public void run() {
     try {
       Context.getRegisterCenter().createNodePath();
-      System.out.println("BeatThread. " + new Date());
+//      System.out.println("BeatThread. " + new Date());
     } catch (Exception e) {
       logException("beatThread err", e);
     }

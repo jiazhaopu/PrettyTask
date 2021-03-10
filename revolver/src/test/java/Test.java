@@ -7,7 +7,7 @@ import com.jzp.task.revolver.utils.IPUtils;
 
 import java.util.Collections;
 
-public class ZkTest {
+public class Test {
 
 
   public static void main(String[] args) throws Exception {
@@ -47,7 +47,7 @@ public class ZkTest {
 //
 //    client.watch(registerCenter.getModulePath());
 
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 1000; i++) {
 
       TaskInfo taskInfo = new TaskInfo();
       taskInfo.setContent(i + "");

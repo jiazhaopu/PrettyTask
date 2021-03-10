@@ -1,6 +1,8 @@
 package com.jzp.task.revolver.executor;
 
+import com.jzp.task.revolver.constants.PoolSelectorEnum;
 import com.jzp.task.revolver.context.Context;
+import com.jzp.task.revolver.handler.IPoolSelector;
 import com.jzp.task.revolver.handler.ITaskCallBack;
 import com.jzp.task.revolver.handler.ITaskHandler;
 import com.jzp.task.revolver.handler.TaskHandler;
@@ -15,6 +17,8 @@ public class ExecutePool {
 
   private static final ExecutePool pool = new ExecutePool();
 
+  private IPoolSelector selector;
+
   private final ThreadPoolExecutor[] executePools;
 
   public static ExecutePool getInstance() {
@@ -28,10 +32,10 @@ public class ExecutePool {
   TaskHandler taskHandler = new TaskHandler();
 
   private ThreadPoolExecutor getExecutor(TaskInfo taskInfo) {
-    int hash = hash(taskInfo);
-    ThreadPoolExecutor executor = executePools[hash];
+    int index = select(taskInfo);
+    ThreadPoolExecutor executor = executePools[index];
     if (executor == null) {
-      return initExecutor(hash);
+      return initExecutor(index);
     }
     return executor;
   }
@@ -79,7 +83,14 @@ public class ExecutePool {
         new ThreadPoolExecutor.AbortPolicy());
   }
 
-  private int hash(TaskInfo taskInfo) {
-    return taskInfo.getHandler().hashCode() % Context.getConfig().getExecutePoolsNum();
+  private int select(TaskInfo taskInfo) {
+    if (selector == null) {
+      selector = PoolSelectorEnum.select(Context.getConfig().getPoolSelector());
+    }
+    return selector.select(taskInfo);
+  }
+
+  public ThreadPoolExecutor[] getExecutePools() {
+    return executePools;
   }
 }

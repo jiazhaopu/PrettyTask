@@ -26,7 +26,9 @@ public class Config {
 
   private int timeWheelLength = 60;
 
-  private long shardPeriod = 1000 * 60;
+  private long shardPeriod = 1000 * timeWheelLength;
+
+  private String poolSelector = "balance";
   // ==================== 线程池配置结束 ===================
 
   // ==================== zookeeper 注册中心配置开始 =======
@@ -213,5 +215,13 @@ public class Config {
 
   public void setQueueLength(int queueLength) {
     this.queueLength = queueLength;
+  }
+
+  public String getPoolSelector() {
+    return poolSelector;
+  }
+
+  public void setPoolSelector(String poolSelector) {
+    this.poolSelector = poolSelector;
   }
 }

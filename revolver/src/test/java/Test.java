@@ -51,7 +51,7 @@ public class Test {
 
       TaskInfo taskInfo = new TaskInfo();
       taskInfo.setContent(i + "");
-      taskInfo.setHandler("" + i);
+      taskInfo.setHandler("" + i % 5);
       taskInfo.setHost(IPUtils.getHostAddress());
       taskInfo.setMaxExecuteTimes(10);
       taskInfo.setScheduleType(ScheduleType.RETRY.getCode());

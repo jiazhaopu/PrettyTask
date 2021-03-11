@@ -83,10 +83,7 @@ public abstract class TaskAbstractClient {
       log.error("Revolver not Running , please call init function");
       throw new Exception("Revolver TaskClient not Running , please call init function");
     }
-    if (!CronUtil.checkCron(taskInfo)) {
-      throw new Exception("cron is not valid");
-    }
-    TaskUtil.check(taskInfo);
+    TaskUtil.checkRegisterAndStart(taskInfo);
     try {
       taskInfo = taskStorage.register(taskInfo);
 //      System.out.println("register taskInfo=" + taskInfo.toString() + ", nextTime"
@@ -121,5 +118,26 @@ public abstract class TaskAbstractClient {
     }
     return false;
   }
+
+  public boolean start(Integer id) {
+    TaskInfo taskInfo = taskStorage.selectForUpdate(id);
+    if (taskInfo != null) {
+      if (TaskStatus.canStart(taskInfo.getStatus())) {
+        try {
+          TaskUtil.checkRegisterAndStart(taskInfo);
+          taskInfo.setNextTime(CronUtil.nextExecuteTime(taskInfo));
+        } catch (Exception e) {
+          e.printStackTrace();
+          return false;
+        }
+        taskInfo.setStatus(TaskStatus.NEW.getCode());
+        taskStorage.updateTask(taskInfo);
+        taskProcessor.put(taskInfo);
+        return true;
+      }
+    }
+    return false;
+  }
+
 
 }

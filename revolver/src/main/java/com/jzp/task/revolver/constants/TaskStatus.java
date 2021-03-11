@@ -1,5 +1,8 @@
 package com.jzp.task.revolver.constants;
 
+import java.util.Arrays;
+import java.util.List;
+
 public enum TaskStatus {
 
 
@@ -28,11 +31,19 @@ public enum TaskStatus {
   }
 
   public static boolean needGoOn(Integer code) {
-    TaskStatus status = fromCode(code);
-    return NEW.equals(status) || FAIL.equals(status);
+    return needGoOn().contains(code);
+  }
+
+  public static List<Integer> needGoOn() {
+    return Arrays.asList(NEW.code, FAIL.code);
   }
 
   public static boolean canSuspend(Integer code) {
     return needGoOn(code);
   }
+
+  public static boolean canStart(Integer code) {
+    return SUSPEND.code.equals(code);
+  }
+
 }

@@ -29,9 +29,15 @@ public class TaskClient extends TaskAbstractClient {
     return super.register(taskInfo);
   }
 
-  public boolean suspend(Integer id) throws Exception {
+  public boolean suspend(Integer id) {
     return super.suspendById(id);
   }
+
+
+  public boolean start(Integer id) {
+    return super.start(id);
+  }
+
 
   @Override
   public List<DBDataSource> getDbDataSources() {

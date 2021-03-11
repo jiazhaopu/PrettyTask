@@ -1,6 +1,7 @@
 package com.jzp.task.revolver.storage;
 
 import com.jzp.task.revolver.constants.ScheduleType;
+import com.jzp.task.revolver.constants.TaskStatus;
 import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.log.ILogger;
 import com.jzp.task.revolver.utils.CronUtil;
@@ -30,8 +31,8 @@ public class TaskStorage implements ILogger {
   private static String selectByIdSQL = "select * from " + tableName + " where id=? ";
   private static final String insertSQL
       = "INSERT INTO " + tableName
-      + " (schedule_type,content,cron,handler,execute_times,max_execute_times,next_time,host,status,create_time) "
-      + "VALUES (?,?,?,?,?,?,?,?,?,now());";
+      + " (schedule_type,content,cron,handler,execute_times,max_execute_times,next_time,host,status,name,create_time) "
+      + "VALUES (?,?,?,?,?,?,?,?,?,?,now());";
 
   private static final String selectMinIdOfWaitingSQL = "select min(id) from " + tableName + " where status=? ";
 
@@ -49,7 +50,7 @@ public class TaskStorage implements ILogger {
           " where status=? AND ip = ? AND next_time <= ? limit ?";
 
   private static final String selectWaitingTaskHostSql =
-      "select * from " + tableName + " where status != 2 AND execute_times<max_execute_times";
+      "select * from " + tableName + " where status in (" + needGoOnStatus() + ") AND execute_times<max_execute_times";
 
   private static final String selectWaitingBeforeNextTime = "select * from " + tableName
       + " where next_time < ? and host = ? and status != 2 AND execute_times<max_execute_times";
@@ -57,13 +58,6 @@ public class TaskStorage implements ILogger {
   private static final String selectWaitingIdByHost =
       "select id from " + tableName + " where host = ? and status != 2 AND execute_times<max_execute_times";
 
-  public static final int WAITING = 0;
-
-  public static final int FAIL = 1;
-
-  public static final int DONE = 2;
-
-  public static final int CLOSED = 3;
 
   private static final String driverClass = "com.mysql.jdbc.Driver";
   private static final Logger log = LoggerFactory.getLogger(TaskStorage.class);
@@ -74,6 +68,19 @@ public class TaskStorage implements ILogger {
     TaskStorage.dbDataSources = dbDataSources;
     TaskStorage.dataSourcesMap = new HashMap<String, DataSource>();
   }
+
+  private static String needGoOnStatus() {
+    StringBuilder builder = new StringBuilder();
+    List<Integer> status = TaskStatus.needGoOn();
+    for (Integer integer : status) {
+      builder.append(integer).append(",");
+    }
+    if (builder.length() > 0) {
+      return builder.substring(0, builder.length() - 1);
+    }
+    return builder.toString();
+  }
+
 
   /**
    * 初始化数据库连接池
@@ -155,8 +162,8 @@ public class TaskStorage implements ILogger {
       psmt.setLong(7, taskInfo.getNextTime());
       psmt.setString(8, taskInfo.getHost());
       psmt.setInt(9, taskInfo.getStatus());
-//            psmt.set(10, taskInfo.getCreateTime());
-//            psmt.setInt(11,taskInfo.getMinuteInterval());
+      psmt.setString(10, taskInfo.getName());
+
       psmt.executeUpdate();
       ResultSet results = psmt.getGeneratedKeys();
       Integer id = null;
@@ -312,6 +319,7 @@ public class TaskStorage implements ILogger {
       taskInfo.setNextTime(rs.getLong("next_time"));
       taskInfo.setScheduleType(rs.getInt("schedule_type"));
       taskInfo.setUpdateTime(rs.getDate("update_time"));
+      taskInfo.setName(rs.getString("name"));
       return taskInfo;
     } catch (Exception e) {
       e.printStackTrace();

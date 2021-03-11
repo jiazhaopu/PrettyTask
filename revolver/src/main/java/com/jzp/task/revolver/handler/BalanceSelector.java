@@ -2,6 +2,7 @@ package com.jzp.task.revolver.handler;
 
 import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.storage.TaskInfo;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,10 +15,11 @@ public class BalanceSelector implements IPoolSelector {
 
   @Override
   public int select(TaskInfo taskInfo) {
-    Integer index = map.get(taskInfo.getHandler());
+    String key = StringUtils.isEmpty(taskInfo.getName()) ? taskInfo.getHandler() : taskInfo.getName();
+    Integer index = map.get(key);
     if (index == null) {
       index = next();
-      map.put(taskInfo.getHandler(), index);
+      map.put(key, index);
     }
     return index;
   }

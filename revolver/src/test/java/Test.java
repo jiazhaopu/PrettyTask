@@ -54,7 +54,10 @@ public class Test {
       taskInfo.setHost(IPUtils.getHostAddress());
       taskInfo.setMaxExecuteTimes(10);
       taskInfo.setScheduleType(ScheduleType.RETRY.getCode());
-      taskClient.register(taskInfo);
+      taskInfo = taskClient.register(taskInfo);
+      taskClient.suspend(taskInfo.getId());
+      taskClient.start(taskInfo.getId());
+      Thread.sleep(1000);
     }
 
   }

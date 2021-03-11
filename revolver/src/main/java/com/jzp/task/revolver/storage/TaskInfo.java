@@ -10,6 +10,8 @@ public class TaskInfo {
 
   private Integer scheduleType;
 
+  private String name;
+
   private String cron;
 
   private String content;
@@ -126,11 +128,20 @@ public class TaskInfo {
     this.updateTime = updateTime;
   }
 
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
   @Override
   public String toString() {
     return "TaskInfo{" +
         "id=" + id +
         ", scheduleType=" + scheduleType +
+        ", name='" + name + '\'' +
         ", cron='" + cron + '\'' +
         ", content='" + content + '\'' +
         ", handler='" + handler + '\'' +

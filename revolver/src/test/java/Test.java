@@ -5,7 +5,9 @@ import com.jzp.task.revolver.storage.DBDataSource;
 import com.jzp.task.revolver.storage.TaskInfo;
 import com.jzp.task.revolver.utils.IPUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class Test {
 
@@ -46,19 +48,36 @@ public class Test {
 //
 //    client.watch(registerCenter.getModulePath());
 
-    for (int i = 0; i < 1000; i++) {
+    List<Integer> list = new ArrayList<>();
+    for (int i = 0; i < 10; i++) {
 
       TaskInfo taskInfo = new TaskInfo();
       taskInfo.setContent(i + "");
       taskInfo.setHandler("" + i % 5);
       taskInfo.setHost(IPUtils.getHostAddress());
       taskInfo.setMaxExecuteTimes(10);
-      taskInfo.setScheduleType(ScheduleType.RETRY.getCode());
+      taskInfo.setScheduleType(ScheduleType.CRON.getCode());
+      taskInfo.setCron("20 /2 * * * ? ");
+      taskInfo.setName("test" + i);
       taskInfo = taskClient.register(taskInfo);
-      taskClient.suspend(taskInfo.getId());
-      taskClient.start(taskInfo.getId());
-      Thread.sleep(1000);
+      list.add(taskInfo.getId());
+//      taskClient.suspend(taskInfo.getId());
+//      taskClient.start(taskInfo.getId());
+
     }
+    Thread.sleep(1000 * 30);
+
+    for (Integer integer : list) {
+      taskClient.suspend(integer);
+    }
+
+
+    Thread.sleep(1000 * 30);
+////
+    for (Integer integer : list) {
+      taskClient.start(integer);
+    }
+
 
   }
 }

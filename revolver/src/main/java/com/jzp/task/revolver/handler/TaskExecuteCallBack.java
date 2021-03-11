@@ -6,12 +6,10 @@ import com.jzp.task.revolver.log.ILogger;
 import com.jzp.task.revolver.storage.TaskInfo;
 import com.jzp.task.revolver.utils.CronUtil;
 
-import java.sql.SQLException;
-
 public class TaskExecuteCallBack implements ITaskCallBack, ILogger {
 
   @Override
-  public void call(TaskInfo taskInfo, boolean success) throws SQLException {
+  public void call(TaskInfo taskInfo, boolean success) {
 
 //    System.out.println("TaskCaller start id="+taskInfo.getId() + "now="+new Date() + "executeTime="+new Date(taskInfo.getNextTime()));
 

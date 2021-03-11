@@ -1,14 +1,13 @@
 package com.jzp.task.revolver.executor;
 
 import com.jzp.task.revolver.constants.ServerState;
-import com.jzp.task.revolver.constants.TaskStatus;
 import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.handler.ITaskCallBack;
 import com.jzp.task.revolver.handler.TaskExecuteCallBack;
 import com.jzp.task.revolver.log.ILogger;
 import com.jzp.task.revolver.storage.TaskInfo;
 import com.jzp.task.revolver.utils.CronUtil;
-import com.jzp.task.revolver.utils.IPUtils;
+import com.jzp.task.revolver.utils.TaskUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,12 +43,12 @@ public class TimeWheelThread extends Thread implements ILogger {
         // select TaskInfo
         TaskInfo taskInfo = Context.getTaskStorage().getTaskById(id);
         // 判断是否应该执行
-        if (shouldRemove(taskInfo)) {
+        if (TaskUtil.shouldRemove(taskInfo)) {
           System.out.println(
               "remove task=" + id + " ,ip=" + taskInfo.getHost() + " nowSec=" + Context.getTimeWheelIndex(time));
           continue;
         }
-        boolean shouldDo = shouldDo(taskInfo.getNextTime(), time);
+        boolean shouldDo = TaskUtil.shouldDo(taskInfo.getNextTime(), time);
         if (shouldDo) {
 //              System.out.println("shouldDo id="+id+", taskSec="+Context.getTimeWheelIndex(time)+", nowSec="+Context.getTimeWheelIndex(time));
           try {
@@ -90,21 +89,4 @@ public class TimeWheelThread extends Thread implements ILogger {
     }
   }
 
-  private boolean shouldRemove(TaskInfo taskInfo) {
-    try {
-      return !IPUtils.getHostAddress().equalsIgnoreCase(taskInfo.getHost()) ||
-          taskInfo.getExecuteTimes() >= taskInfo.getMaxExecuteTimes() ||
-          TaskStatus.SUCCESS.getCode().equals(taskInfo.getStatus());
-    } catch (Exception e) {
-      return false;
-    }
-  }
-
-  private boolean shouldDo(TaskInfo taskInfo, long time) {
-    return taskInfo.getNextTime() / 1000 == time / 1000;
-  }
-
-  private boolean shouldDo(long millSec1, long millSec2) {
-    return millSec1 / 1000 <= millSec2 / 1000;
-  }
 }

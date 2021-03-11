@@ -82,7 +82,7 @@ public class TaskProcessor implements ILogger {
     try {
       // 查询出任务未结束，在未来 beforeNextTime 毫秒内需要执行的任务
       // 任务的下次执行时间 < 当前时间 + beforeNextTime
-      List<TaskInfo> list = Context.getTaskStorage().selectWaitingBeforeNextTime(beforeNextTime);
+      List<TaskInfo> list = Context.getTaskStorage().selectMyWaitingBeforeNextTime(beforeNextTime);
       for (TaskInfo taskInfo : list) {
 //        System.out.println("scanAndPutTask taskInfo="+taskInfo.toString());
         // 如果该任务已经落后超过 5秒，需要重新计算下次触发时间

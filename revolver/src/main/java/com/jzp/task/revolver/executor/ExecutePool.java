@@ -5,8 +5,8 @@ import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.handler.IPoolSelector;
 import com.jzp.task.revolver.handler.ITaskCallBack;
 import com.jzp.task.revolver.handler.ITaskHandler;
-import com.jzp.task.revolver.handler.TaskHandler;
 import com.jzp.task.revolver.storage.TaskInfo;
+import com.jzp.task.revolver.utils.ApplicationContextHelper;
 
 import java.util.Date;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -28,8 +28,6 @@ public class ExecutePool {
   private ExecutePool() {
     executePools = new ThreadPoolExecutor[Context.getConfig().getExecutePoolsNum()];
   }
-
-  TaskHandler taskHandler = new TaskHandler();
 
   private ThreadPoolExecutor getExecutor(TaskInfo taskInfo) {
     int index = select(taskInfo);
@@ -53,16 +51,18 @@ public class ExecutePool {
     ThreadPoolExecutor executor = getExecutor(taskInfo);
 //      System.out.println("submit pool_queueSize="+executor.getQueue().size() + ", id="+taskInfo.getId());
     executor.execute(() -> {
-//        ITaskHandler handler = (ITaskHandler)ApplicationContextHelper.getBean(taskInfo.getHandler());
-      ITaskHandler handler = taskHandler;
       try {
+        ITaskHandler handler = (ITaskHandler) ApplicationContextHelper.getBean(taskInfo.getHandler());
+        if (handler == null) {
+          return;
+        }
         long t = System.currentTimeMillis();
 //        System.out.println("start execute id=" + taskInfo.getId() + " executorPoolSize=" + executor.getActiveCount()
 //            + ", pool_queueSize=" + executor.getQueue().size());
         System.out.println(
             "start execute taskInfo=" + taskInfo.toString() + " nextTime=" + new Date(taskInfo.getNextTime())
                 + ",nowDate=" + new Date());
-        boolean res = handler != null && handler.execute(taskInfo.getContent());
+        boolean res = handler.execute(taskInfo.getContent());
         callable.call(taskInfo, res);
 //        System.out.println(
 //            "end execute id=" + taskInfo.getId() + " executorSize=" + executor.getActiveCount() + ", cost=" + (

@@ -1,6 +1,7 @@
 package com.jzp.task.revolver.utils;
 
 import com.jzp.task.revolver.constants.ScheduleType;
+import com.jzp.task.revolver.constants.TaskStatus;
 import com.jzp.task.revolver.storage.TaskInfo;
 
 public class TaskUtil {
@@ -20,4 +21,21 @@ public class TaskUtil {
     }
 
   }
+
+  public static boolean shouldRemove(TaskInfo taskInfo) {
+    try {
+      return !IPUtils.getHostAddress().equalsIgnoreCase(taskInfo.getHost()) ||
+          taskInfo.getExecuteTimes() >= taskInfo.getMaxExecuteTimes() ||
+          !TaskStatus.needGoOn(taskInfo.getStatus());
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+
+  public static boolean shouldDo(long millSec1, long millSec2) {
+    return millSec1 / 1000 <= millSec2 / 1000;
+  }
+
+
 }

@@ -57,7 +57,7 @@ public class FailOverProcess implements Runnable {
         return new ArrayList<>();
       }
       // 所有等待执行的Task
-      List<TaskInfo> waitingTask = getWaitingTas();
+      List<TaskInfo> waitingTask = getWaitingTaskExceptMy();
       //只保留故障的Task
       waitingTask = waitingTask.stream().filter(e -> !availableHost.contains(e.getHost())).collect(Collectors.toList());
       // 转移到本机，最多转移数量
@@ -83,8 +83,8 @@ public class FailOverProcess implements Runnable {
   }
 
 
-  private List<TaskInfo> getWaitingTas() throws Exception {
-    return Context.getTaskStorage().getWaitingTask();
+  private List<TaskInfo> getWaitingTaskExceptMy() throws Exception {
+    return Context.getTaskStorage().getWaitingTaskExceptMy();
   }
 
 }

@@ -28,35 +28,31 @@ public class TaskStorage implements ILogger {
 
   private static final String tableName = "task_info";
 
-  private static String selectByIdSQL = "select * from " + tableName + " where id=? ";
+  private static final String selectByIdSQL = "select * from " + tableName + " where id=? ";
   private static final String insertSQL
       = "INSERT INTO " + tableName
       + " (schedule_type,content,cron,handler,execute_times,max_execute_times,next_time,host,status,name,create_time) "
       + "VALUES (?,?,?,?,?,?,?,?,?,?,now());";
-
-  private static final String selectMinIdOfWaitingSQL = "select min(id) from " + tableName + " where status=? ";
 
   private static final String updateStatusSQL = "update " + tableName
       + " set status=? ,execute_times = ?,next_time = ?, host = ? , update_time = now() where id=?";
 
   private static final String selectForUpdate = "select * from " + tableName + " where id=? for update";
 
-
   private static final String updateHostSql =
       "update " + tableName + " set host=?, update_time = now() where id = ? and host = ?";
 
-  private static final String selectWaitingSQL =
-      "select id,business_id,business_type,handler,content,expired_time,retry_times,executed_times from " + tableName +
-          " where status=? AND ip = ? AND next_time <= ? limit ?";
+  private static final String selectAllWaitingExceptHostSql =
+      "select * from " + tableName + " where host != ? and status in (" + needGoOnStatus()
+          + ") AND (execute_times<max_execute_times or max_execute_times = 0)";
 
-  private static final String selectWaitingTaskHostSql =
-      "select * from " + tableName + " where status in (" + needGoOnStatus() + ") AND execute_times<max_execute_times";
-
-  private static final String selectWaitingBeforeNextTime = "select * from " + tableName
-      + " where next_time < ? and host = ? and status != 2 AND execute_times<max_execute_times";
+  private static final String selectWaitingBeforeNextTimeByHost = "select * from " + tableName
+      + " where next_time < ? and host = ? and status in (" + needGoOnStatus()
+      + ") AND (execute_times<max_execute_times or max_execute_times = 0)";
 
   private static final String selectWaitingIdByHost =
-      "select id from " + tableName + " where host = ? and status != 2 AND execute_times<max_execute_times";
+      "select id from " + tableName + " where host = ? and status in (" + needGoOnStatus()
+          + ") AND (execute_times<max_execute_times or max_execute_times = 0)";
 
 
   private static final String driverClass = "com.mysql.jdbc.Driver";
@@ -300,10 +296,6 @@ public class TaskStorage implements ILogger {
     TaskStorage.dataSourcesMap = dataSourcesMap;
   }
 
-  public static String getTablename() {
-    return tableName;
-  }
-
   private static TaskInfo getTask(ResultSet rs) {
     try {
       TaskInfo taskInfo = new TaskInfo();
@@ -327,7 +319,7 @@ public class TaskStorage implements ILogger {
     return null;
   }
 
-  public List<TaskInfo> getWaitingTask() throws Exception {
+  public List<TaskInfo> getWaitingTaskExceptMy() throws Exception {
     DataSource master = getDataSource(false);
     Connection con = null;
     try {
@@ -337,7 +329,8 @@ public class TaskStorage implements ILogger {
     }
     try {
       assert con != null;
-      PreparedStatement psmt = con.prepareStatement(selectWaitingTaskHostSql);
+      PreparedStatement psmt = con.prepareStatement(selectAllWaitingExceptHostSql);
+      psmt.setString(1, IPUtils.getHostAddress());
       ResultSet rs = psmt.executeQuery();
       List<TaskInfo> list = new ArrayList<>();
       while (rs.next()) {
@@ -383,7 +376,7 @@ public class TaskStorage implements ILogger {
     }
   }
 
-  public List<TaskInfo> selectWaitingBeforeNextTime(long beforeNextTime) throws Exception {
+  public List<TaskInfo> selectMyWaitingBeforeNextTime(long beforeNextTime) throws Exception {
     DataSource master = getDataSource(false);
     Connection con = null;
     try {
@@ -393,7 +386,7 @@ public class TaskStorage implements ILogger {
     }
     try {
       assert con != null;
-      PreparedStatement psmt = con.prepareStatement(selectWaitingBeforeNextTime);
+      PreparedStatement psmt = con.prepareStatement(selectWaitingBeforeNextTimeByHost);
       psmt.setLong(1, beforeNextTime);
       psmt.setString(2, IPUtils.getHostAddress());
       ResultSet rs = psmt.executeQuery();

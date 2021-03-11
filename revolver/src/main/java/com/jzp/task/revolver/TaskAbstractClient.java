@@ -1,6 +1,7 @@
 package com.jzp.task.revolver;
 
 import com.jzp.task.revolver.constants.ServerState;
+import com.jzp.task.revolver.constants.TaskStatus;
 import com.jzp.task.revolver.context.Config;
 import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.register.RegisterCenter;
@@ -39,7 +40,7 @@ public abstract class TaskAbstractClient {
   /**
    * 初始化内部mysql 连接池，线程池等
    */
-  public void init() throws Exception {
+  protected void init() throws Exception {
     if (ServerState.RUNNING.equals(Context.getState().get())) {
       log.info("Revolver have inited, return");
       return;
@@ -108,5 +109,17 @@ public abstract class TaskAbstractClient {
   }
 
 
+  public boolean suspendById(Integer id) {
+    TaskInfo taskInfo = taskStorage.selectForUpdate(id);
+    if (taskInfo != null) {
+      if (TaskStatus.canSuspend(taskInfo.getStatus())) {
+        taskInfo.setStatus(TaskStatus.SUSPEND.getCode());
+        taskStorage.updateTask(taskInfo);
+        taskProcessor.remove(taskInfo);
+        return true;
+      }
+    }
+    return false;
+  }
 
 }

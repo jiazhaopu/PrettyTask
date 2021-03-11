@@ -56,6 +56,17 @@ public class TaskProcessor implements ILogger {
   }
 
 
+  public void remove(TaskInfo taskInfo) {
+    if (taskInfo == null) {
+      return;
+    }
+    ConcurrentSkipListSet<Integer> queue = route(taskInfo.getNextTime());
+    if (queue != null) {
+      queue.remove(taskInfo.getId());
+    }
+  }
+
+
 
   private ConcurrentSkipListSet<Integer> route(long nextTime) {
     if (nextTime > System.currentTimeMillis() + Context.getConfig().getTimeWheelLength() * 1000) {

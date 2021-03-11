@@ -9,12 +9,13 @@ import java.util.List;
 
 public class TaskClient extends TaskAbstractClient {
 
-  public TaskClient(List<DBDataSource> dbDataSources, Config config) {
+  public TaskClient(List<DBDataSource> dbDataSources, Config config) throws Exception {
     super(dbDataSources, config);
+    init();
   }
 
   @Override
-  public void init() throws Exception {
+  protected void init() throws Exception {
     super.init();
     Context.setTaskClient(this);
   }
@@ -26,6 +27,10 @@ public class TaskClient extends TaskAbstractClient {
 
   public TaskInfo register(TaskInfo taskInfo) throws Exception {
     return super.register(taskInfo);
+  }
+
+  public boolean suspend(Integer id) throws Exception {
+    return super.suspendById(id);
   }
 
   @Override

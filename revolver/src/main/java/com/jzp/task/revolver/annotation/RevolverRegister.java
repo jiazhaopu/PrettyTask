@@ -25,7 +25,8 @@ public @interface RevolverRegister {
   ScheduleType scheduleType();
 
   String content() default "";
-  
 
+  // 0 表示不限次数
+  int maxExecuteTimes() default 0;
 
 }

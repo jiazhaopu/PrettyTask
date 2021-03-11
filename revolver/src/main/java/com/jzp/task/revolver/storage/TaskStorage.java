@@ -38,6 +38,9 @@ public class TaskStorage implements ILogger {
   private static final String updateStatusSQL = "update " + tableName
       + " set status=? ,execute_times = ?,next_time = ?, host = ? , update_time = now() where id=?";
 
+  private static final String selectForUpdate = "select * from " + tableName + " where id=? for update";
+
+
   private static final String updateHostSql =
       "update " + tableName + " set host=?, update_time = now() where id = ? and host = ?";
 
@@ -218,6 +221,38 @@ public class TaskStorage implements ILogger {
           con.close();
       } catch (Exception e) {
         logException(taskInfo.toString(), e);
+      }
+    }
+  }
+
+
+  public TaskInfo selectForUpdate(Integer id) {
+    DataSource master = getDataSource(true);
+    Connection con = null;
+    try {
+      con = master.getConnection();
+    } catch (Exception e) {
+      logException("id=" + id, e);
+    }
+    try {
+      assert con != null;
+      PreparedStatement psmt = con.prepareStatement(selectForUpdate);
+      psmt.setInt(1, id);
+      ResultSet rs = psmt.executeQuery();
+      TaskInfo taskInfo = null;
+      while (rs.next()) {
+        taskInfo = getTask(rs);
+      }
+      return taskInfo;
+    } catch (SQLException ex) {
+      logException("id=" + id, ex);
+      return null;
+    } finally {
+      try {
+        if (con != null)
+          con.close();
+      } catch (Exception e) {
+        logException("id=" + id, e);
       }
     }
   }

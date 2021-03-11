@@ -27,9 +27,6 @@ public class RegisterAspect {
   private void doIntercept() {
   }
 
-  /**
-   * 执行业务方法之前
-   */
   @Around("doIntercept()")
   public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
     MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
@@ -38,13 +35,32 @@ public class RegisterAspect {
     if (register == null) {
       return null;
     }
+    try {
+      return joinPoint.proceed();
+    } catch (Throwable e) {
+      catchAfterThrowing(register, e);
+      throw e;
+    }
+  }
+
+  private void catchAfterThrowing(RevolverRegister register, Throwable e) throws Exception {
+    if (e == null) {
+      return;
+    }
+    if (register.registerFor().length > 0) {
+      register(register);
+    }
+  }
+
+  private void register(RevolverRegister register) throws Exception {
     TaskInfo taskInfo = new TaskInfo();
     taskInfo.setContent(register.content());
     taskInfo.setCron(register.cron());
     taskInfo.setHandler(register.handler());
+    taskInfo.setNextTime(register.nextTime());
+    taskInfo.setMaxExecuteTimes(register.maxExecuteTimes());
+    taskInfo.setScheduleType(register.scheduleType().getCode());
     Context.getTaskClient().register(taskInfo);
-
-    return null;
   }
 
 

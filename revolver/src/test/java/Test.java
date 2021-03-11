@@ -24,7 +24,6 @@ public class Test {
     config.setModule("web");
 
     TaskClient taskClient = new TaskClient(Collections.singletonList(source), config);
-    taskClient.init();
 //
 //    ZookeeperClient client = Context.getZookeeperClient();
 //    RegisterCenter registerCenter = new RegisterCenter(client);

@@ -5,15 +5,23 @@ import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.handler.IPoolSelector;
 import com.jzp.task.revolver.handler.ITaskCallBack;
 import com.jzp.task.revolver.handler.ITaskHandler;
+import com.jzp.task.revolver.log.ILogger;
 import com.jzp.task.revolver.storage.TaskInfo;
 import com.jzp.task.revolver.utils.ApplicationContextHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class ExecutePool {
+
+  Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
   private static final ExecutePool pool = new ExecutePool();
 
@@ -49,7 +57,8 @@ public class ExecutePool {
 
   public void submit(final TaskInfo taskInfo, ITaskCallBack callable) {
     ThreadPoolExecutor executor = getExecutor(taskInfo);
-//      System.out.println("submit pool_queueSize="+executor.getQueue().size() + ", id="+taskInfo.getId());
+    LOGGER.info("submit. [pool_queueSize={}, taskId={}, activeCount={}]"
+        ,executor.getQueue().size(),taskInfo.getId(),executor.getActiveCount());
     executor.execute(() -> {
       try {
         ITaskHandler handler = (ITaskHandler) ApplicationContextHelper.getBean(taskInfo.getHandler());
@@ -57,21 +66,19 @@ public class ExecutePool {
           return;
         }
         long t = System.currentTimeMillis();
-//        System.out.println("start execute id=" + taskInfo.getId() + " executorPoolSize=" + executor.getActiveCount()
-//            + ", pool_queueSize=" + executor.getQueue().size());
-        System.out.println(
-            "start execute taskInfo=" + taskInfo.toString() + " nextTime=" + new Date(taskInfo.getNextTime())
-                + ",nowDate=" + new Date());
+        LOGGER.info("start execute. [taskInfo='{}', nextTime={}, nowDate={}]",
+            taskInfo.toString() , new Date(taskInfo.getNextTime()), new Date());
         boolean res = handler.execute(taskInfo.getContent());
         callable.call(taskInfo, res);
-//        System.out.println(
-//            "end execute id=" + taskInfo.getId() + " executorSize=" + executor.getActiveCount() + ", cost=" + (
-//                System.currentTimeMillis() - t));
+        LOGGER.info(
+            "end execute. [id={}, executorSize={}, cost={} ms",
+            taskInfo.getId(),executor.getActiveCount(), (System.currentTimeMillis() - t));
       } catch (Exception e) {
         e.printStackTrace();
       }
     });
   }
+
 
   private ThreadPoolExecutor makeExecutePool() {
     return new ThreadPoolExecutor(Context.getConfig().getCorePoolSize(),

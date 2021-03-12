@@ -16,7 +16,6 @@ public class BeatThread implements Runnable, ILogger {
   public void run() {
     try {
       Context.getRegisterCenter().createNodePath();
-//      System.out.println("BeatThread. " + new Date());
     } catch (Exception e) {
       logException("beatThread err", e);
     }

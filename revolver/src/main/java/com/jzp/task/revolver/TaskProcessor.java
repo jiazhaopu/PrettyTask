@@ -43,12 +43,13 @@ public class TaskProcessor implements ILogger {
     if (queue != null) {
       try {
         if (queue.contains(taskInfo.getId())) {
-          System.out.println(
-              "queue.containsId now=" + new Date() + ", sec=" + Context.getTimeWheelIndex(taskInfo.getNextTime())
-                  + " taskInfo=" + taskInfo.toString());
+          LOGGER.info("queue containsId. [now={}, nextTime={}, taskId={}]",
+              new Date(), Context.getTimeWheelIndex(taskInfo.getNextTime()),taskInfo.getId());
+        }else {
+          queue.add(taskInfo.getId());
+          LOGGER.info("put taskId to queue. [now={}, nextTime={}, taskId={}]",
+              new Date(), Context.getTimeWheelIndex(taskInfo.getNextTime()),taskInfo.getId());
         }
-        queue.add(taskInfo.getId());
-//        System.out.println("put time = "+new Date()+", taskId="+taskInfo.getId()+", nextTime="+Context.getTimeWheelIndex(taskInfo.getNextTime()));
       } catch (Exception e) {
         logException(taskInfo.toString(), e);
       }
@@ -84,7 +85,6 @@ public class TaskProcessor implements ILogger {
       // 任务的下次执行时间 < 当前时间 + beforeNextTime
       List<TaskInfo> list = Context.getTaskStorage().selectMyWaitingBeforeNextTime(beforeNextTime);
       for (TaskInfo taskInfo : list) {
-//        System.out.println("scanAndPutTask taskInfo="+taskInfo.toString());
         // 如果该任务已经落后超过 5秒，需要重新计算下次触发时间
         if (taskInfo.getNextTime() < time - 5 * 1000) {
           taskInfo.setNextTime(CronUtil.nextExecuteTime(taskInfo));

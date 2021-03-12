@@ -86,8 +86,6 @@ public abstract class TaskAbstractClient {
     TaskUtil.checkRegisterAndStart(taskInfo);
     try {
       taskInfo = taskStorage.register(taskInfo);
-//      System.out.println("register taskInfo=" + taskInfo.toString() + ", nextTime"
-//          + "=" + new Date(taskInfo.getNextTime()));
       taskProcessor.put(taskInfo);
     } catch (Exception ex) {
       // TODO Auto-generated catch block

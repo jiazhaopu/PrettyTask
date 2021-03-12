@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-public class RegisterCenter {
+public class RegisterCenter implements ILogger{
 
 
   Logger log = LoggerFactory.getLogger(ILogger.class);
@@ -89,8 +89,7 @@ public class RegisterCenter {
       zookeeperClient.setDataForEphe(getNodePath(), configInfo);
       return true;
     } catch (Exception e) {
-      e.printStackTrace();
-//      log.error("failed to set server config. [applicationId='{}', configInfo='{}']", applicationId, configInfo, e);
+      logException(configInfo,e);
     }
     return false;
   }

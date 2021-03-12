@@ -6,12 +6,15 @@ import com.jzp.task.revolver.log.ILogger;
 import com.jzp.task.revolver.storage.TaskInfo;
 import com.jzp.task.revolver.utils.CronUtil;
 
+import java.util.Date;
+
 public class TaskExecuteCallBack implements ITaskCallBack, ILogger {
 
   @Override
   public void call(TaskInfo taskInfo, boolean success) {
 
-//    System.out.println("TaskCaller start id="+taskInfo.getId() + "now="+new Date() + "executeTime="+new Date(taskInfo.getNextTime()));
+    LOGGER.info("TaskExecuteCallBack start. [taskId={}, now='{}', nextTime='{}']",
+        taskInfo.getId(),new Date(),new Date(taskInfo.getNextTime()));
 
     taskInfo.setExecuteTimes(taskInfo.getExecuteTimes() + 1);
     taskInfo.setStatus(success ? TaskStatus.SUCCESS.getCode() : TaskStatus.FAIL.getCode());
@@ -23,11 +26,14 @@ public class TaskExecuteCallBack implements ITaskCallBack, ILogger {
       } catch (Exception e) {
         logException(taskInfo.toString(), e);
       }
-//      task.setNextTime(taskInfo.getNextTime());
-//      System.out.println("TaskExecuteCallBack put taskInfo="+taskInfo.toString()+" now="+new Date()+", taskSec="+Context.getTimeWheelIndex(taskInfo.getNextTime()));
+
       Context.getTaskProcessor().put(taskInfo);
+
+      LOGGER.info("TaskExecuteCallBack put task. [taskId={}, taskInfo='{}', nextTime='{}']",
+          taskInfo.getId(),taskInfo.toString(),new Date(taskInfo.getNextTime()));
     }
     Context.getTaskStorage().updateTask(taskInfo);
-//    System.out.println("TaskCaller end id="+taskInfo.getId()+", success="+success+" nextTime="+new Date(taskInfo.getNextTime()));
+    LOGGER.info("TaskExecuteCallBack end. [taskId={}, success={}, nextTime={}]",
+        taskInfo.getId(),success,new Date(taskInfo.getNextTime()));
   }
 }

@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 public class FailOverProcess implements Runnable {
 
+
+
   @Override
   public void run() {
     process();
@@ -26,8 +28,6 @@ public class FailOverProcess implements Runnable {
     Set<String> availableHost = new HashSet<>();
     while (!Context.getDelayQueue().isEmpty()) {
       try {
-        String data = client.getData(path);
-        System.out.println("++++ data=+" + data + ", path=" + path);
         Context.getDelayQueue().take();
         List<String> list = curatorFramework.getChildren().forPath(path);
         System.out.println(list);

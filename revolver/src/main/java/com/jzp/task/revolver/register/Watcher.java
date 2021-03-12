@@ -4,6 +4,7 @@ import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.executor.ThreadPoolHelper;
 import com.jzp.task.revolver.failover.FailOverItem;
 import com.jzp.task.revolver.failover.FailOverProcess;
+import com.jzp.task.revolver.log.ILogger;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
@@ -11,7 +12,7 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 
 import java.util.concurrent.TimeUnit;
 
-public class Watcher {
+public class Watcher implements ILogger {
 
   public Watcher() {
   }
@@ -27,6 +28,7 @@ public class Watcher {
       @Override
       public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
         System.out.println("节点数据变化,类型:" + event.getType() + ",路径:" + event.getData().getPath());
+        LOGGER.info("node changed. [type={}, path='{}']", event.getType() , event.getData().getPath());
         Context.addFailOverQueue(new FailOverItem(event, 10, TimeUnit.SECONDS));
         ThreadPoolHelper.submitToFailOverPool(new FailOverProcess());
       }

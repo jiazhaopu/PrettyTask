@@ -8,8 +8,6 @@ import com.jzp.task.revolver.log.ILogger;
 import com.jzp.task.revolver.storage.TaskInfo;
 import com.jzp.task.revolver.utils.CronUtil;
 import com.jzp.task.revolver.utils.TaskUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,9 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TimeWheelThread extends Thread implements ILogger {
 
-  protected final Logger log = LoggerFactory.getLogger(this.getClass());
-
-  private ITaskCallBack taskCaller = new TaskExecuteCallBack();
+  private final ITaskCallBack taskCaller = new TaskExecuteCallBack();
 
   public void run() {
     while (ServerState.RUNNING.equals(Context.getState().get())) {
@@ -32,30 +28,23 @@ public class TimeWheelThread extends Thread implements ILogger {
       while (!queue.isEmpty()) {
         list.add(queue.pollFirst());
       }
-
-      System.out.println(" while before poll listSize=" + list.size() + "， queueSize=" + queue.size() + " ,nowSec="
-          + Context.getTimeWheelIndex(time) + "， now=" + new Date(time));
-//        System.out.println("sec = "+Context.getCurrentTimeWheelIndex()+" after poll size="+queue.size()+", task="+Context.getTimeWheelIndex(task.getNextTime()));
-//        System.out.println(" before while poll size="+queue.size()+"， empty="+queue.isEmpty());
+      LOGGER.info("TimeWheelThread poll. [listSize={}, taskSec={}, nowDate{}",
+          list.size(), Context.getTimeWheelIndex(time), new Date(time));
       for (Integer id : list) {
-//          if (isSameSecond(task.getNextTime(),time)) {
-//            System.out.println("TimeWheelThread do task="+id+" nowSec="+Context.getTimeWheelIndex(time));
-        // select TaskInfo
         TaskInfo taskInfo = Context.getTaskStorage().getTaskById(id);
         // 判断是否应该执行
         if (TaskUtil.shouldRemove(taskInfo)) {
-          System.out.println(
-              "remove task=" + id + " ,ip=" + taskInfo.getHost() + " nowSec=" + Context.getTimeWheelIndex(time));
+          LOGGER.info("remove. [taskId={}, ip='{}',nowSec={}",
+              id, taskInfo.getHost(), Context.getTimeWheelIndex(time));
           continue;
         }
         boolean shouldDo = TaskUtil.shouldDo(taskInfo.getNextTime(), time);
         if (shouldDo) {
-//              System.out.println("shouldDo id="+id+", taskSec="+Context.getTimeWheelIndex(time)+", nowSec="+Context.getTimeWheelIndex(time));
+          LOGGER.info("shouldDo. [taskId={}, taskSec={}, nowSec={}]",
+              id,Context.getTimeWheelIndex(taskInfo.getNextTime()),Context.getTimeWheelIndex(time));
           try {
             ExecutePool.getInstance().submit(taskInfo, taskCaller);
           } catch (Exception e) {
-//                System.out.println(taskInfo.toString());
-//                e.printStackTrace();
             logException(taskInfo.toString(), e);
             taskInfo.setNextTime(CronUtil.nextExecuteTimeWithoutException(taskInfo));
             Context.getTaskStorage().updateTask(taskInfo);
@@ -63,17 +52,10 @@ public class TimeWheelThread extends Thread implements ILogger {
           }
 
         } else {
-          System.out.println(
-              "not do reput now=" + new Date(time) + ", taskNextDateTime=" + new Date(taskInfo.getNextTime())
-                  + " taskNextTime=" + taskInfo.getNextTime() + ", time=" + time +
-                  ", taskSec=" + Context.getTimeWheelIndex(taskInfo.getNextTime()) + " , nowSec="
-                  + Context.getTimeWheelIndex(time));
+          LOGGER.info("not do rePut. [taskId={}, now={}, nextTime={}",
+              taskInfo.getId(), new Date(time),new Date(taskInfo.getNextTime()));
           Context.getTaskProcessor().put(taskInfo);
         }
-//          }else {
-//            System.out.println("reput task");
-//            Context.getTaskProcessor().put(task);
-//          }
       }
     }
 
@@ -81,11 +63,10 @@ public class TimeWheelThread extends Thread implements ILogger {
 
   private void sleepToNextSecond() {
     try {
-      System.out.println("========= sleepToNextSecond =========");
       long sleep = 1000 - System.currentTimeMillis() % 1000;
       TimeUnit.MILLISECONDS.sleep(sleep);
     } catch (InterruptedException e) {
-      log.error(e.getMessage(), e);
+      logException(e.getMessage(), e);
     }
   }
 

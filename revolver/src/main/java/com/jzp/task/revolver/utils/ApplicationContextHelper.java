@@ -20,8 +20,17 @@ public class ApplicationContextHelper implements ApplicationContextAware {
     try {
       return context.getBean(beanName);
     } catch (Exception e) {
-      e.printStackTrace();
     }
     return null;
   }
+
+
+  public static <T> T getBean(String beanName, Class<T> clazz) {
+    try {
+      return context.getBean(beanName, clazz);
+    } catch (Exception e) {
+    }
+    return null;
+  }
+
 }

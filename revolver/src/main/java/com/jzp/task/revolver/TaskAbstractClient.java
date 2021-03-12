@@ -4,19 +4,21 @@ import com.jzp.task.revolver.constants.ServerState;
 import com.jzp.task.revolver.constants.TaskStatus;
 import com.jzp.task.revolver.context.Config;
 import com.jzp.task.revolver.context.Context;
+import com.jzp.task.revolver.log.ILogger;
 import com.jzp.task.revolver.register.RegisterCenter;
 import com.jzp.task.revolver.register.ZookeeperClient;
 import com.jzp.task.revolver.storage.DBDataSource;
 import com.jzp.task.revolver.storage.TaskInfo;
 import com.jzp.task.revolver.storage.TaskStorage;
 import com.jzp.task.revolver.utils.CronUtil;
+import com.jzp.task.revolver.utils.IPUtils;
 import com.jzp.task.revolver.utils.TaskUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public abstract class TaskAbstractClient {
+public abstract class TaskAbstractClient implements ILogger {
   protected static final Logger log = LoggerFactory.getLogger(TaskAbstractClient.class);
   private List<DBDataSource> dbDataSources;
   private TaskStorage taskStorage;
@@ -83,6 +85,7 @@ public abstract class TaskAbstractClient {
       log.error("Revolver not Running , please call init function");
       throw new Exception("Revolver TaskClient not Running , please call init function");
     }
+    taskInfo.setHost(IPUtils.getHostAddress());
     TaskUtil.checkRegisterAndStart(taskInfo);
     try {
       taskInfo = taskStorage.register(taskInfo);
@@ -125,7 +128,7 @@ public abstract class TaskAbstractClient {
           TaskUtil.checkRegisterAndStart(taskInfo);
           taskInfo.setNextTime(CronUtil.nextExecuteTime(taskInfo));
         } catch (Exception e) {
-          e.printStackTrace();
+          logException("start taskId=" + id, e);
           return false;
         }
         taskInfo.setStatus(TaskStatus.NEW.getCode());

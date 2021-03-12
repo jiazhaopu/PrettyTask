@@ -56,7 +56,7 @@ public class TaskStorage implements ILogger {
 
 
   private static final String driverClass = "com.mysql.jdbc.Driver";
-  private static final Logger log = LoggerFactory.getLogger(TaskStorage.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TaskStorage.class);
   private static List<DBDataSource> dbDataSources;
   private static HashMap<String, DataSource> dataSourcesMap;
 
@@ -82,7 +82,7 @@ public class TaskStorage implements ILogger {
    * 初始化数据库连接池
    */
   public void init() {
-    log.info("start init TaskStorage db Size {}", dbDataSources.size());
+    LOGGER.info("start init TaskStorage db Size {}", dbDataSources.size());
     for (DBDataSource dbSrc : dbDataSources) {
       BasicDataSource result = new BasicDataSource();
       result.setDriverClassName(driverClass);
@@ -97,11 +97,11 @@ public class TaskStorage implements ILogger {
       result.setValidationQuery("SELECT 1 FROM DUAL;");
       dataSourcesMap.put(dbSrc.getUrl(), result);
     }
-    log.info("init TaskStorage success");
+    LOGGER.info("init TaskStorage success");
   }
 
   public void close() {
-    log.info("start close TaskStorage");
+    LOGGER.info("start close TaskStorage");
     Iterator<Entry<String, DataSource>> it = dataSourcesMap.entrySet().iterator();
     while (it.hasNext()) {
       Entry<String, DataSource> entry = it.next();
@@ -110,7 +110,7 @@ public class TaskStorage implements ILogger {
         dataSrc.close();
       } catch (SQLException e) {
         // TODO Auto-generated catch block
-        log.error("dataSrc={} close fail ", dataSrc.getUrl(), e);
+        LOGGER.error("dataSrc={} close fail ", dataSrc.getUrl(), e);
       }
     }
   }
@@ -169,8 +169,6 @@ public class TaskStorage implements ILogger {
       taskInfo.setId(id);
       return taskInfo;
     } catch (Exception e) {
-      e.printStackTrace();
-      System.out.println("register=" + taskInfo.toString());
       logException(taskInfo.toString(), e);
       throw e;
     } finally {
@@ -314,7 +312,7 @@ public class TaskStorage implements ILogger {
       taskInfo.setName(rs.getString("name"));
       return taskInfo;
     } catch (Exception e) {
-      e.printStackTrace();
+      LOGGER.error("getTask err. [rs={}]", rs, e);
     }
     return null;
   }
@@ -325,7 +323,7 @@ public class TaskStorage implements ILogger {
     try {
       con = master.getConnection();
     } catch (Exception e) {
-      e.printStackTrace();
+      LOGGER.error("getWaitingTaskExceptMy", e);
     }
     try {
       assert con != null;
@@ -355,7 +353,7 @@ public class TaskStorage implements ILogger {
     try {
       con = master.getConnection();
     } catch (Exception e) {
-      e.printStackTrace();
+      LOGGER.error("selectWaitingIdByHost", e);
     }
     try {
       assert con != null;
@@ -382,7 +380,7 @@ public class TaskStorage implements ILogger {
     try {
       con = master.getConnection();
     } catch (Exception e) {
-      e.printStackTrace();
+      LOGGER.error("selectMyWaitingBeforeNextTime", e);
     }
     try {
       assert con != null;

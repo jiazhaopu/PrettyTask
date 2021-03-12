@@ -44,11 +44,11 @@ public class TaskProcessor implements ILogger {
       try {
         if (queue.contains(taskInfo.getId())) {
           LOGGER.info("queue containsId. [now={}, nextTime={}, taskId={}]",
-              new Date(), Context.getTimeWheelIndex(taskInfo.getNextTime()),taskInfo.getId());
-        }else {
+              new Date(), Context.getTimeWheelIndex(taskInfo.getNextTime()), taskInfo.getId());
+        } else {
           queue.add(taskInfo.getId());
           LOGGER.info("put taskId to queue. [now={}, nextTime={}, taskId={}]",
-              new Date(), Context.getTimeWheelIndex(taskInfo.getNextTime()),taskInfo.getId());
+              new Date(), Context.getTimeWheelIndex(taskInfo.getNextTime()), taskInfo.getId());
         }
       } catch (Exception e) {
         logException(taskInfo.toString(), e);

@@ -4,23 +4,18 @@ import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.executor.ThreadPoolHelper;
 import com.jzp.task.revolver.log.ILogger;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-public class RegisterCenter implements ILogger{
-
-
-  Logger log = LoggerFactory.getLogger(ILogger.class);
-
+public class RegisterCenter implements ILogger {
+  
   private static final String REVOLVER_PATH = "revolver";
 
   private static final String NODE_PATH = UUID.randomUUID().toString();
 
   protected ZookeeperClient zookeeperClient;
- 
+
   public RegisterCenter(ZookeeperClient zookeeperClient) {
     this.zookeeperClient = zookeeperClient;
   }
@@ -73,9 +68,6 @@ public class RegisterCenter implements ILogger{
     createProductPath();
     createModulePath();
     createNodePath();
-    createNodePath();
-    createNodePath();
-
   }
 
   public void beatsAndWatcher() throws Exception {
@@ -89,7 +81,7 @@ public class RegisterCenter implements ILogger{
       zookeeperClient.setDataForEphe(getNodePath(), configInfo);
       return true;
     } catch (Exception e) {
-      logException(configInfo,e);
+      logException(configInfo, e);
     }
     return false;
   }

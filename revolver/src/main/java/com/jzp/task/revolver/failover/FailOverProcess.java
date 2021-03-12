@@ -1,6 +1,7 @@
 package com.jzp.task.revolver.failover;
 
 import com.jzp.task.revolver.context.Context;
+import com.jzp.task.revolver.log.ILogger;
 import com.jzp.task.revolver.register.ZookeeperClient;
 import com.jzp.task.revolver.storage.TaskInfo;
 import com.jzp.task.revolver.utils.IPUtils;
@@ -12,9 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class FailOverProcess implements Runnable {
-
-
+public class FailOverProcess implements Runnable, ILogger {
 
   @Override
   public void run() {
@@ -30,16 +29,14 @@ public class FailOverProcess implements Runnable {
       try {
         Context.getDelayQueue().take();
         List<String> list = curatorFramework.getChildren().forPath(path);
-        System.out.println(list);
+        LOGGER.info("children for path. [path='{}', children='{}']", path, list);
+
         for (String children : list) {
           String childrenPath = ZookeeperClient.getPath(path, children);
-          System.out.println("path = " + path + children + ", childrenData = "
-              + client.getData(childrenPath));
           availableHost.add(client.getData(childrenPath));
         }
-
       } catch (Exception e) {
-        e.printStackTrace();
+        logException("FailOverProcess", e);
       }
     }
     failover(availableHost);
@@ -51,6 +48,7 @@ public class FailOverProcess implements Runnable {
 
     List<Integer> list = new ArrayList<>();
     try {
+      LOGGER.info("failover. [availableHost='{}']", availableHost);
       String ip = IPUtils.getHostAddress();
       // 最新的 host 列表
       if (availableHost.size() == 0) {
@@ -65,7 +63,7 @@ public class FailOverProcess implements Runnable {
       int failoverMax = waitingTask.size() / availableHost.size() + 1;
       int failoverCount = 0;
       for (TaskInfo taskInfo : waitingTask) {
-        System.out.println("failover waitingTask=" + taskInfo.toString());
+        LOGGER.info("failover waitingTask=" + taskInfo.toString());
         // 故障转移，把host 改成当前机器
         int row = Context.getTaskStorage().updateHost(taskInfo.getId(), taskInfo.getHost(), ip);
         if (row >= 1) {
@@ -75,9 +73,9 @@ public class FailOverProcess implements Runnable {
           break;
         }
       }
+      LOGGER.info("failover. [failoverCount={}]", failoverCount);
     } catch (Exception e) {
-      e.printStackTrace();
-//      logException("",e);
+      logException("failover", e);
     }
     return list;
   }

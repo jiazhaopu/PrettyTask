@@ -41,19 +41,19 @@ public class TimeWheelThread extends Thread implements ILogger {
         boolean shouldDo = TaskUtil.shouldDo(taskInfo.getNextTime(), time);
         if (shouldDo) {
           LOGGER.info("shouldDo. [taskId={}, taskSec={}, nowSec={}]",
-              id,Context.getTimeWheelIndex(taskInfo.getNextTime()),Context.getTimeWheelIndex(time));
+              id, Context.getTimeWheelIndex(taskInfo.getNextTime()), Context.getTimeWheelIndex(time));
           try {
             ExecutePool.getInstance().submit(taskInfo, taskCaller);
           } catch (Exception e) {
             logException(taskInfo.toString(), e);
             taskInfo.setNextTime(CronUtil.nextExecuteTimeWithoutException(taskInfo));
-            Context.getTaskStorage().updateTask(taskInfo);
+            Context.getTaskStorage().updateTaskWithoutException(taskInfo);
             Context.getTaskProcessor().put(taskInfo);
           }
 
         } else {
           LOGGER.info("not do rePut. [taskId={}, now={}, nextTime={}",
-              taskInfo.getId(), new Date(time),new Date(taskInfo.getNextTime()));
+              taskInfo.getId(), new Date(time), new Date(taskInfo.getNextTime()));
           Context.getTaskProcessor().put(taskInfo);
         }
       }

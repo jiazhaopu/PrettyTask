@@ -29,12 +29,12 @@ public class TaskClient extends TaskAbstractClient {
     return super.register(taskInfo);
   }
 
-  public boolean suspend(Integer id) {
+  public boolean suspend(Integer id) throws Exception {
     return super.suspendById(id);
   }
 
 
-  public boolean start(Integer id) {
+  public boolean start(Integer id) throws Exception {
     return super.start(id);
   }
 

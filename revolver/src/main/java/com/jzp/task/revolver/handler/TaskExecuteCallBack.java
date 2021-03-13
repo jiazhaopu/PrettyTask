@@ -14,7 +14,7 @@ public class TaskExecuteCallBack implements ITaskCallBack, ILogger {
   public void call(TaskInfo taskInfo, boolean success) {
 
     LOGGER.info("TaskExecuteCallBack start. [taskId={}, now='{}', nextTime='{}']",
-        taskInfo.getId(),new Date(),new Date(taskInfo.getNextTime()));
+        taskInfo.getId(), new Date(), new Date(taskInfo.getNextTime()));
 
     taskInfo.setExecuteTimes(taskInfo.getExecuteTimes() + 1);
     taskInfo.setStatus(success ? TaskStatus.SUCCESS.getCode() : TaskStatus.FAIL.getCode());
@@ -30,10 +30,15 @@ public class TaskExecuteCallBack implements ITaskCallBack, ILogger {
       Context.getTaskProcessor().put(taskInfo);
 
       LOGGER.info("TaskExecuteCallBack put task. [taskId={}, taskInfo='{}', nextTime='{}']",
-          taskInfo.getId(),taskInfo.toString(),new Date(taskInfo.getNextTime()));
+          taskInfo.getId(), taskInfo.toString(), new Date(taskInfo.getNextTime()));
     }
-    Context.getTaskStorage().updateTask(taskInfo);
-    LOGGER.info("TaskExecuteCallBack end. [taskId={}, success={}, nextTime={}]",
-        taskInfo.getId(),success,new Date(taskInfo.getNextTime()));
+    try {
+      Context.getTaskStorage().updateTask(taskInfo);
+      LOGGER.info("TaskExecuteCallBack end. [taskId={}, success={}, nextTime={}]",
+          taskInfo.getId(), success, new Date(taskInfo.getNextTime()));
+    } catch (Exception e) {
+      logException(taskInfo.toString(), e);
+    }
+
   }
 }

@@ -143,10 +143,7 @@ public class TaskStorage implements ILogger {
     }
 
     taskInfo.setNextTime(CronUtil.nextExecuteTime(taskInfo));
-
-    DataSource dataSource = getDataSource(true);
-    Connection con = dataSource.getConnection();
-    try {
+    try (Connection con = getConnection(true)) {
       PreparedStatement psmt = con.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS);
       DatabaseMetaData metaData = con.getMetaData();
       psmt.setInt(1, taskInfo.getScheduleType());
@@ -171,8 +168,6 @@ public class TaskStorage implements ILogger {
     } catch (Exception e) {
       logException(taskInfo.toString(), e);
       throw e;
-    } finally {
-      con.close();
     }
 
   }
@@ -180,8 +175,7 @@ public class TaskStorage implements ILogger {
   public TaskInfo getTaskById(Integer id) {
     if (id == null)
       return null;
-    DataSource dataSrc = getDataSource(false);
-    try (Connection con = dataSrc.getConnection()) {
+    try (Connection con = getConnection(false)) {
       PreparedStatement psmt = con.prepareStatement(selectByIdSQL);
       psmt.setInt(1, id);
       ResultSet rs = psmt.executeQuery();
@@ -196,16 +190,18 @@ public class TaskStorage implements ILogger {
     }
   }
 
-  public int updateTask(TaskInfo taskInfo) {
-    DataSource master = getDataSource(true);
-    Connection con = null;
+  public int updateTaskWithoutException(TaskInfo taskInfo) {
     try {
-      con = master.getConnection();
+      return updateTask(taskInfo);
     } catch (Exception e) {
       logException(taskInfo.toString(), e);
     }
+    return 0;
+  }
+
+  public int updateTask(TaskInfo taskInfo) throws Exception {
+    Connection con = getConnection(true);
     try {
-      assert con != null;
       PreparedStatement psmt = con.prepareStatement(updateStatusSQL);
       psmt.setInt(1, taskInfo.getStatus());
       psmt.setInt(2, taskInfo.getExecuteTimes());
@@ -227,16 +223,9 @@ public class TaskStorage implements ILogger {
   }
 
 
-  public TaskInfo selectForUpdate(Integer id) {
-    DataSource master = getDataSource(true);
-    Connection con = null;
+  public TaskInfo selectForUpdate(Integer id) throws SQLException {
+    Connection con = getConnection(true);
     try {
-      con = master.getConnection();
-    } catch (Exception e) {
-      logException("id=" + id, e);
-    }
-    try {
-      assert con != null;
       PreparedStatement psmt = con.prepareStatement(selectForUpdate);
       psmt.setInt(1, id);
       ResultSet rs = psmt.executeQuery();
@@ -258,16 +247,9 @@ public class TaskStorage implements ILogger {
     }
   }
 
-  public int updateHost(Integer id, String oldHost, String newHost) {
-    DataSource master = getDataSource(true);
-    Connection con = null;
+  public int updateHost(Integer id, String oldHost, String newHost) throws Exception {
+    Connection con = getConnection(true);
     try {
-      con = master.getConnection();
-    } catch (Exception e) {
-      logException("taskId=" + id, e);
-    }
-    try {
-      assert con != null;
       PreparedStatement psmt = con.prepareStatement(updateHostSql);
       psmt.setString(1, newHost);
       psmt.setInt(2, id);
@@ -318,15 +300,7 @@ public class TaskStorage implements ILogger {
   }
 
   public List<TaskInfo> getWaitingTaskExceptMy() throws Exception {
-    DataSource master = getDataSource(false);
-    Connection con = null;
-    try {
-      con = master.getConnection();
-    } catch (Exception e) {
-      LOGGER.error("getWaitingTaskExceptMy", e);
-    }
-    try {
-      assert con != null;
+    try (Connection con = getConnection(false)) {
       PreparedStatement psmt = con.prepareStatement(selectAllWaitingExceptHostSql);
       psmt.setString(1, IPUtils.getHostAddress());
       ResultSet rs = psmt.executeQuery();
@@ -339,24 +313,13 @@ public class TaskStorage implements ILogger {
     } catch (Exception ex) {
       logException("", ex);
       throw ex;
-    } finally {
-      if (con != null)
-        con.close();
     }
   }
 
 
 
   public List<Integer> selectWaitingIdByHost(String host) throws Exception {
-    DataSource master = getDataSource(false);
-    Connection con = null;
-    try {
-      con = master.getConnection();
-    } catch (Exception e) {
-      LOGGER.error("selectWaitingIdByHost", e);
-    }
-    try {
-      assert con != null;
+    try (Connection con = getConnection(false)) {
       PreparedStatement psmt = con.prepareStatement(selectWaitingIdByHost);
       psmt.setString(1, host);
       ResultSet rs = psmt.executeQuery();
@@ -368,22 +331,11 @@ public class TaskStorage implements ILogger {
     } catch (Exception ex) {
       logException("host=" + host, ex);
       throw ex;
-    } finally {
-      if (con != null)
-        con.close();
     }
   }
 
   public List<TaskInfo> selectMyWaitingBeforeNextTime(long beforeNextTime) throws Exception {
-    DataSource master = getDataSource(false);
-    Connection con = null;
-    try {
-      con = master.getConnection();
-    } catch (Exception e) {
-      LOGGER.error("selectMyWaitingBeforeNextTime", e);
-    }
-    try {
-      assert con != null;
+    try (Connection con = getConnection(false)) {
       PreparedStatement psmt = con.prepareStatement(selectWaitingBeforeNextTimeByHost);
       psmt.setLong(1, beforeNextTime);
       psmt.setString(2, IPUtils.getHostAddress());
@@ -396,12 +348,20 @@ public class TaskStorage implements ILogger {
     } catch (Exception ex) {
       logException("beforeNextTime=" + beforeNextTime, ex);
       throw ex;
-    } finally {
-      if (con != null)
-        con.close();
     }
   }
 
+  private Connection getConnection(boolean master) throws SQLException {
+    DataSource dataSource = getDataSource(master);
+    Connection con;
+    try {
+      con = dataSource.getConnection();
+    } catch (Exception e) {
+      LOGGER.error("getConnection err. [dataSource='{}']", dataSource, e);
+      throw e;
+    }
+    return con;
+  }
 
 
 }

@@ -27,7 +27,7 @@ public class Watcher implements ILogger {
 
       @Override
       public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
-        LOGGER.info("node changed. [type={}, path='{}']", event.getType(), event.getData().getPath());
+        LOGGER.info("node changed. [type={}, path='{}']", event.getType(), event.getData());
         Context.addFailOverQueue(new FailOverItem(event, 10, TimeUnit.SECONDS));
         ThreadPoolHelper.submitToFailOverPool(new FailOverProcess());
       }

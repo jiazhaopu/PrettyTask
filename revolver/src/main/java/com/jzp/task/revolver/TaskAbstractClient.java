@@ -107,7 +107,7 @@ public abstract class TaskAbstractClient implements ILogger {
   }
 
 
-  public boolean suspendById(Integer id) {
+  public boolean suspendById(Integer id) throws Exception {
     TaskInfo taskInfo = taskStorage.selectForUpdate(id);
     if (taskInfo != null) {
       if (TaskStatus.canSuspend(taskInfo.getStatus())) {
@@ -120,7 +120,7 @@ public abstract class TaskAbstractClient implements ILogger {
     return false;
   }
 
-  public boolean start(Integer id) {
+  public boolean start(Integer id) throws Exception {
     TaskInfo taskInfo = taskStorage.selectForUpdate(id);
     if (taskInfo != null) {
       if (TaskStatus.canStart(taskInfo.getStatus())) {

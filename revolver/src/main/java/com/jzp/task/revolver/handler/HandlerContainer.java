@@ -20,7 +20,7 @@ public class HandlerContainer {
     if (o == null) {
       return get(name);
     }
-    return null;
+    return (T) o;
   }
 
   public static <T> T getBean(String name, Class<T> clazz) {
@@ -28,7 +28,7 @@ public class HandlerContainer {
     if (o == null) {
       return get(name, clazz);
     }
-    return null;
+    return (T) o;
   }
 
   private static <T> T get(String name) {

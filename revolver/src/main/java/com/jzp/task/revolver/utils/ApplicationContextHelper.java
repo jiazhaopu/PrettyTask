@@ -7,7 +7,7 @@ import org.springframework.context.ApplicationContextAware;
 /**
  * 业务方注入进来
  */
-public class ApplicationContextHelper implements ApplicationContextAware {
+public abstract class ApplicationContextHelper implements ApplicationContextAware {
 
   private static ApplicationContext context;
 

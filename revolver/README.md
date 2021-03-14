@@ -14,7 +14,7 @@ Revolver 像左轮一样轻量，使用者不断向弹药库或者转轮输送�
 - 2. AOP 注解式注册
 - 3. 支持启动暂停
 - 2.支持的任务类型：
-- 1. FIXED_TIM。只能执行一次，需要指定执行时间，或者 CRON
+- 1. FIXED_TIME。只能执行一次，需要指定执行时间，或者 CRON
 - 2. RETRY。需要指定重试次数，如果指定 CRON 则按照规则重试，否则随机间隔 1～5 秒调度
 - 3. CRON。按照 CRON 调度，可不指定次数上限
 
@@ -124,9 +124,9 @@ import org.springframework.stereotype.Component;
 @Component("taskHandler")
 public class TaskHandler implements ITaskHandler {
   @Override
-  public boolean execute(String s) throws Exception {
+  public ResultEnum execute(String s) throws Exception {
     do something
-    return true;
+    return ResultEnum.FINISH;
   }
 }
 

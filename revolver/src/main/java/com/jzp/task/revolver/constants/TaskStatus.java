@@ -8,8 +8,8 @@ public enum TaskStatus {
 
   SUSPEND(-1),
   NEW(0),
-  FAIL(1),
-  SUCCESS(2);
+  FAIL(ResultEnum.CONTINUE.getCode()),
+  SUCCESS(ResultEnum.FINISH.getCode());
 
   TaskStatus(Integer code) {
     this.code = code;

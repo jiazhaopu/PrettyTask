@@ -1,6 +1,8 @@
 package com.jzp.task.revolver.handler;
 
+import com.jzp.task.revolver.constants.ResultEnum;
+
 public interface ITaskHandler {
 
-  boolean execute(String val) throws Exception;
+  ResultEnum execute(String val) throws Exception;
 }

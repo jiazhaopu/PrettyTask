@@ -1,6 +1,7 @@
 package com.jzp.task.revolver.executor;
 
 import com.jzp.task.revolver.constants.PoolSelectorEnum;
+import com.jzp.task.revolver.constants.ResultEnum;
 import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.handler.HandlerContainer;
 import com.jzp.task.revolver.handler.IPoolSelector;
@@ -53,7 +54,7 @@ public class ExecutePool implements ILogger {
     LOGGER.info("submit. [pool_queueSize={}, taskId={}, activeCount={}]"
         , executor.getQueue().size(), taskInfo.getId(), executor.getActiveCount());
     executor.execute(() -> {
-      boolean res = false;
+      ResultEnum res = ResultEnum.CONTINUE;
       try {
         ITaskHandler handler = HandlerContainer.getBean(taskInfo.getHandler());
         if (handler != null) {
@@ -61,8 +62,7 @@ public class ExecutePool implements ILogger {
           LOGGER.info("start execute. [taskInfo='{}', nextTime={}, nowDate={}]",
               taskInfo.toString(), new Date(taskInfo.getNextTime()), new Date());
           res = handler.execute(taskInfo.getContent());
-          LOGGER.info(
-              "end execute. [id={}, executorSize={}, cost={} ms",
+          LOGGER.info("end execute. [id={}, executorSize={}, cost={} ms",
               taskInfo.getId(), executor.getActiveCount(), (System.currentTimeMillis() - t));
         }
       } catch (Exception e) {

@@ -18,24 +18,24 @@ public class TaskExecuteCallBack implements ITaskCallBack, ILogger {
     LOGGER.info("TaskExecuteCallBack start. [taskId={}, now='{}', nextTime='{}']",
         taskInfo.getId(), new Date(), new Date(taskInfo.getNextTime()));
 
-    taskInfo.setExecuteTimes(taskInfo.getExecuteTimes() + 1);
-    taskInfo.setStatus(Objects.requireNonNull(TaskStatus.fromCode(resultEnum.getCode())).getCode());
-
+    TaskInfo update = new TaskInfo();
+    update.setStatus(Objects.requireNonNull(TaskStatus.fromCode(resultEnum.getCode())).getCode());
+    update.setId(taskInfo.getId());
     if (ResultEnum.CONTINUE.equals(resultEnum)
-        && taskInfo.getExecuteTimes() < taskInfo.getMaxExecuteTimes()) {
+        && update.getExecuteTimes() < taskInfo.getMaxExecuteTimes() - 1) {
       // 重新计算时间
       try {
-        taskInfo.setNextTime(CronUtil.nextExecuteTime(taskInfo));
+        update.setNextTime(CronUtil.nextExecuteTime(taskInfo));
       } catch (Exception e) {
         logException(taskInfo.toString(), e);
       }
 
-      Context.getTaskProcessor().put(taskInfo);
+      Context.getTaskProcessor().put(update);
       LOGGER.info("TaskExecuteCallBack put task. [taskId={}, taskInfo='{}', nextTime='{}']",
           taskInfo.getId(), taskInfo.toString(), new Date(taskInfo.getNextTime()));
     }
     try {
-      Context.getTaskStorage().updateTask(taskInfo);
+      Context.getTaskStorage().updateExecute(update);
       LOGGER.info("TaskExecuteCallBack end. [taskId={}, success={}, nextTime={}]",
           taskInfo.getId(), resultEnum, new Date(taskInfo.getNextTime()));
     } catch (Exception e) {

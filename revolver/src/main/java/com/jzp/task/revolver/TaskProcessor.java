@@ -15,14 +15,12 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
 
 public class TaskProcessor implements ILogger {
-
-
+  
   public void init() {
     Context.getState().compareAndSet(ServerState.CREATE, ServerState.RUNNING);
     new TimeWheelThread().start();
     ThreadPoolHelper.schedulePool.scheduleAtFixedRate(new ReloadAndShardThread(), Context.getConfig().getShardPeriod(),
         Context.getConfig().getShardPeriod(), TimeUnit.MILLISECONDS);
-
   }
 
   public void close() {
@@ -56,7 +54,6 @@ public class TaskProcessor implements ILogger {
     }
   }
 
-
   public void remove(TaskInfo taskInfo) {
     if (taskInfo == null) {
       return;
@@ -67,15 +64,12 @@ public class TaskProcessor implements ILogger {
     }
   }
 
-
-
   private ConcurrentSkipListSet<Integer> route(long nextTime) {
     if (nextTime > System.currentTimeMillis() + Context.getConfig().getTimeWheelLength() * 1000) {
       return null;
     }
     return Context.getWheelCluster(nextTime);
   }
-
 
   public void reloadTask() {
     long time = System.currentTimeMillis();
@@ -88,7 +82,7 @@ public class TaskProcessor implements ILogger {
         // 如果该任务已经落后超过 5秒，需要重新计算下次触发时间
         if (taskInfo.getNextTime() < time - 5 * 1000) {
           taskInfo.setNextTime(CronUtil.nextExecuteTime(taskInfo));
-          Context.getTaskStorage().updateTask(taskInfo);
+          Context.getTaskStorage().updateNextTime(taskInfo.getId(), taskInfo.getNextTime());
         }
         Context.getTaskProcessor().put(taskInfo);
       }

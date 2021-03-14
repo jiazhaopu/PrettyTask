@@ -111,8 +111,7 @@ public abstract class TaskAbstractClient implements ILogger {
     TaskInfo taskInfo = taskStorage.selectForUpdate(id);
     if (taskInfo != null) {
       if (TaskStatus.canSuspend(taskInfo.getStatus())) {
-        taskInfo.setStatus(TaskStatus.SUSPEND.getCode());
-        taskStorage.updateTask(taskInfo);
+        taskStorage.updateStatus(id, taskInfo.getStatus(), TaskStatus.SUSPEND.getCode());
         taskProcessor.remove(taskInfo);
         return true;
       }
@@ -124,17 +123,12 @@ public abstract class TaskAbstractClient implements ILogger {
     TaskInfo taskInfo = taskStorage.selectForUpdate(id);
     if (taskInfo != null) {
       if (TaskStatus.canStart(taskInfo.getStatus())) {
-        try {
-          TaskUtil.checkRegisterAndStart(taskInfo);
-          taskInfo.setNextTime(CronUtil.nextExecuteTime(taskInfo));
-        } catch (Exception e) {
-          logException("start taskId=" + id, e);
-          return false;
+        TaskUtil.checkRegisterAndStart(taskInfo);
+        int row = taskStorage.restart(id, taskInfo.getStatus(), CronUtil.nextExecuteTime(taskInfo));
+        if (row > 0) {
+          taskProcessor.put(taskInfo);
+          return true;
         }
-        taskInfo.setStatus(TaskStatus.NEW.getCode());
-        taskStorage.updateTask(taskInfo);
-        taskProcessor.put(taskInfo);
-        return true;
       }
     }
     return false;

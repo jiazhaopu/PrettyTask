@@ -1,8 +1,10 @@
 import com.jzp.task.revolver.TaskClient;
-import com.jzp.task.revolver.constants.ScheduleType;
 import com.jzp.task.revolver.context.Config;
 import com.jzp.task.revolver.handler.TaskHandler;
+import com.jzp.task.revolver.storage.CronTask;
 import com.jzp.task.revolver.storage.DBDataSource;
+import com.jzp.task.revolver.storage.FixedTask;
+import com.jzp.task.revolver.storage.RetryTask;
 import com.jzp.task.revolver.storage.TaskInfo;
 
 import java.util.ArrayList;
@@ -28,18 +30,38 @@ public class Test {
     TaskClient taskClient = new TaskClient(Collections.singletonList(source), config);
 
     List<Integer> list = new ArrayList<>();
-    for (int i = 0; i < 10; i++) {
-      TaskInfo taskInfo = new TaskInfo();
-      taskInfo.setHandler(TaskHandler.class.getName());
+    for (int i = 0; i < 100; i++) {
+      CronTask taskInfo = new CronTask();
+      taskInfo.setHandler(TaskHandler.class);
       taskInfo.setMaxExecuteTimes(10);
-      taskInfo.setScheduleType(ScheduleType.CRON.getCode());
       taskInfo.setCron("20 * * * * ? ");
       taskInfo.setName("testTask");
       taskInfo.setContent(taskInfo.toString());
-      taskInfo = taskClient.register(taskInfo);
-      list.add(taskInfo.getId());
-
+      TaskInfo taskInfo1 = taskClient.registerCron(taskInfo);
+      list.add(taskInfo1.getId());
     }
+
+    for (int i = 0; i < 100; i++) {
+      FixedTask taskInfo = new FixedTask();
+      taskInfo.setHandler(TaskHandler.class);
+      taskInfo.setExecuteTime(System.currentTimeMillis() + 1000);
+      taskInfo.setName("testTask");
+      taskInfo.setContent(taskInfo.toString());
+      TaskInfo taskInfo1 = taskClient.registerFixed(taskInfo);
+      list.add(taskInfo1.getId());
+    }
+
+    for (int i = 0; i < 100; i++) {
+      RetryTask taskInfo = new RetryTask();
+      taskInfo.setHandler(TaskHandler.class);
+      taskInfo.setCron("20 * * * * ? ");
+      taskInfo.setMaxTimes(10);
+      taskInfo.setName("testTask");
+      taskInfo.setContent(taskInfo.toString());
+      TaskInfo taskInfo1 = taskClient.registerRetry(taskInfo);
+      list.add(taskInfo1.getId());
+    }
+
 //
 //    Thread.sleep(1000 * 30);
 //    for (Integer integer : list) {

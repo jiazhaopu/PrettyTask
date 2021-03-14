@@ -34,9 +34,6 @@ public class TaskStorage implements ILogger {
       + " (schedule_type,content,cron,handler,execute_times,max_execute_times,next_time,host,status,name,create_time) "
       + "VALUES (?,?,?,?,?,?,?,?,?,?,now());";
 
-  private static final String updateStatusSQL = "update " + tableName
-      + " set status=? ,execute_times = ?,next_time = ?, host = ? , update_time = now() where id=?";
-
   private static final String selectForUpdate = "select * from " + tableName + " where id=? for update";
 
   private static final String updateHostSql =
@@ -49,11 +46,6 @@ public class TaskStorage implements ILogger {
   private static final String selectWaitingBeforeNextTimeByHost = "select * from " + tableName
       + " where next_time < ? and host = ? and status in (" + needGoOnStatus()
       + ") AND (execute_times<max_execute_times or max_execute_times = 0)";
-
-  private static final String selectWaitingIdByHost =
-      "select id from " + tableName + " where host = ? and status in (" + needGoOnStatus()
-          + ") AND (execute_times<max_execute_times or max_execute_times = 0)";
-
 
   private static final String driverClass = "com.mysql.jdbc.Driver";
   private static final Logger LOGGER = LoggerFactory.getLogger(TaskStorage.class);
@@ -190,36 +182,49 @@ public class TaskStorage implements ILogger {
     }
   }
 
-  public int updateTaskWithoutException(TaskInfo taskInfo) {
+  public int updateNextTimeWithoutException(int id, long nextTime) {
     try {
-      return updateTask(taskInfo);
+      return updateNextTime(id, nextTime);
     } catch (Exception e) {
-      logException(taskInfo.toString(), e);
+      logException("id=" + id, e);
     }
     return 0;
   }
 
-  public int updateTask(TaskInfo taskInfo) throws Exception {
-    Connection con = getConnection(true);
-    try {
-      PreparedStatement psmt = con.prepareStatement(updateStatusSQL);
-      psmt.setInt(1, taskInfo.getStatus());
-      psmt.setInt(2, taskInfo.getExecuteTimes());
-      psmt.setLong(3, taskInfo.getNextTime());
-      psmt.setString(4, taskInfo.getHost());
-      psmt.setInt(5, taskInfo.getId());
-      return psmt.executeUpdate();
-    } catch (SQLException ex) {
-      logException(taskInfo.toString(), ex);
-      return 0;
-    } finally {
-      try {
-        if (con != null)
-          con.close();
-      } catch (Exception e) {
-        logException(taskInfo.toString(), e);
-      }
+  public int updateStatus(int id, int fromStatus, int toStatus) throws Exception {
+    StringBuilder builder = new StringBuilder("update ").append(tableName).append(" set");
+    builder.append(" status=").append(toStatus).append(" where id").append(id);
+    builder.append(" and status=").append(fromStatus);
+    return executeUpdate(builder.toString());
+  }
+
+  public int restart(int id, int fromStatus, long nextTime) throws Exception {
+    StringBuilder builder = new StringBuilder("update ").append(tableName).append(" set");
+    builder.append(" status=").append(TaskStatus.NEW.getCode()).append(",");
+    builder.append(" next_time=").append(nextTime);
+    builder.append(" where id").append(id);
+    builder.append(" and status=").append(fromStatus);
+    return executeUpdate(builder.toString());
+  }
+
+
+  public int updateNextTime(int id, long nextTime) throws Exception {
+    StringBuilder builder = new StringBuilder("update ").append(tableName).append(" set");
+    builder.append(" next_time=").append(nextTime);
+    builder.append(" where id").append(id);
+    return executeUpdate(builder.toString());
+  }
+
+  public int updateExecute(TaskInfo taskInfo) throws Exception {
+    StringBuilder builder = new StringBuilder("update ").append(tableName).append(" set");
+    builder.append(" status=").append(taskInfo.getStatus()).append(",");
+    builder.append(" execute_times = execute_times + 1").append(",");
+    if (taskInfo.getNextTime() != null) {
+      builder.append(" next_time=").append(taskInfo.getNextTime()).append(",");
     }
+    builder.append(" update_time=").append("now()").
+        append(" where id=").append(taskInfo.getId());
+    return executeUpdate(builder.toString());
   }
 
 
@@ -316,24 +321,6 @@ public class TaskStorage implements ILogger {
     }
   }
 
-
-
-  public List<Integer> selectWaitingIdByHost(String host) throws Exception {
-    try (Connection con = getConnection(false)) {
-      PreparedStatement psmt = con.prepareStatement(selectWaitingIdByHost);
-      psmt.setString(1, host);
-      ResultSet rs = psmt.executeQuery();
-      List<Integer> list = new ArrayList<>();
-      while (rs.next()) {
-        list.add(rs.getInt("id"));
-      }
-      return list;
-    } catch (Exception ex) {
-      logException("host=" + host, ex);
-      throw ex;
-    }
-  }
-
   public List<TaskInfo> selectMyWaitingBeforeNextTime(long beforeNextTime) throws Exception {
     try (Connection con = getConnection(false)) {
       PreparedStatement psmt = con.prepareStatement(selectWaitingBeforeNextTimeByHost);
@@ -362,6 +349,26 @@ public class TaskStorage implements ILogger {
     }
     return con;
   }
+
+
+  public int executeUpdate(String updateSql) throws Exception {
+    Connection con = getConnection(true);
+    try {
+      PreparedStatement psmt = con.prepareStatement(updateSql);
+      return psmt.executeUpdate();
+    } catch (SQLException ex) {
+      logException(updateSql, ex);
+      return 0;
+    } finally {
+      try {
+        if (con != null)
+          con.close();
+      } catch (Exception e) {
+        logException(updateSql, e);
+      }
+    }
+  }
+
 
 
 }

@@ -47,7 +47,7 @@ public class TimeWheelThread extends Thread implements ILogger {
           } catch (Exception e) {
             logException(taskInfo.toString(), e);
             taskInfo.setNextTime(CronUtil.nextExecuteTimeWithoutException(taskInfo));
-            Context.getTaskStorage().updateTaskWithoutException(taskInfo);
+            Context.getTaskStorage().updateNextTimeWithoutException(taskInfo.getId(), taskInfo.getNextTime());
             Context.getTaskProcessor().put(taskInfo);
           }
 

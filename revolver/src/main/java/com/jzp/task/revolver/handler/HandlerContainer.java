@@ -18,7 +18,16 @@ public class HandlerContainer {
   public static <T> T getBean(String name) {
     Object o = ApplicationContextHelper.getBean(name);
     if (o == null) {
-      return get(name);
+      try {
+        Class clz = Class.forName(name);
+        o = ApplicationContextHelper.getBean(clz);
+      } catch (Exception e) {
+        e.printStackTrace();
+
+      }
+      if (o == null) {
+        return get(name);
+      }
     }
     return (T) o;
   }

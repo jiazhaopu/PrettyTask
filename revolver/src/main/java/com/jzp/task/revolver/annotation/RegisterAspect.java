@@ -2,9 +2,10 @@ package com.jzp.task.revolver.annotation;
 
 
 import com.jzp.task.revolver.context.Context;
+import com.jzp.task.revolver.log.ILogger;
 import com.jzp.task.revolver.storage.TaskInfo;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -21,26 +22,21 @@ import java.lang.reflect.Method;
  */
 @Component
 @Aspect
-public class RegisterAspect {
+public class RegisterAspect implements ILogger {
 
   @Pointcut("@annotation(com.jzp.task.revolver.annotation.RevolverRegister)")
   private void doIntercept() {
   }
 
-  @Around("doIntercept()")
-  public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
-    MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+  @AfterThrowing(value = "doIntercept()", throwing = "ex")
+  public void afterThrowing(JoinPoint point, Throwable ex) throws Exception {
+    MethodSignature methodSignature = (MethodSignature) point.getSignature();
     Method method = methodSignature.getMethod();
     RevolverRegister register = AnnotationUtils.getAnnotation(method, RevolverRegister.class);
     if (register == null) {
-      return null;
+      return;
     }
-    try {
-      return joinPoint.proceed();
-    } catch (Throwable e) {
-      catchAfterThrowing(register, e);
-      throw e;
-    }
+    catchAfterThrowing(register, ex);
   }
 
   private void catchAfterThrowing(RevolverRegister register, Throwable e) throws Exception {

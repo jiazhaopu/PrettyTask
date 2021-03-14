@@ -3,11 +3,15 @@ package com.jzp.task.revolver.utils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 /**
  * 业务方注入进来
  */
-public abstract class ApplicationContextHelper implements ApplicationContextAware {
+@Component
+@Lazy(false)
+public class ApplicationContextHelper implements ApplicationContextAware {
 
   private static ApplicationContext context;
 
@@ -17,6 +21,7 @@ public abstract class ApplicationContextHelper implements ApplicationContextAwar
   }
 
   public static Object getBean(String beanName) {
+
     try {
       return context.getBean(beanName);
     } catch (Exception e) {
@@ -32,5 +37,16 @@ public abstract class ApplicationContextHelper implements ApplicationContextAwar
     }
     return null;
   }
+
+
+  public static <T> T getBean(Class<T> clazz) {
+    try {
+      return context.getBean(clazz);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
 
 }

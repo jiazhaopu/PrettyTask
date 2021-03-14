@@ -55,7 +55,7 @@ public class ExecutePool implements ILogger {
     executor.execute(() -> {
       boolean res = false;
       try {
-        ITaskHandler handler = HandlerContainer.getBean(taskInfo.getHandler(), ITaskHandler.class);
+        ITaskHandler handler = HandlerContainer.getBean(taskInfo.getHandler());
         if (handler != null) {
           long t = System.currentTimeMillis();
           LOGGER.info("start execute. [taskInfo='{}', nextTime={}, nowDate={}]",

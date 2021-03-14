@@ -35,3 +35,99 @@ Revolver 像左轮一样轻量，使用者不断向弹药库或者转轮输送�
 - 3. 随机。
 - 4. 平衡(默认)(推荐)。当任务没有进入过线程池时，轮询选择下一个线程池，一旦选择了线程池就在固定线程池执行。是对hash策略的优化，可以控制任务的并发度
 - 5. 低负载(推荐)。选择当前负载最低的线程池，优点效率高，缺点执行线程池不确定，多线程并发不好控制
+
+## Use
+
+```$xslt
+
+// 配置ComponentScan
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@ComponentScan(basePackages = {
+    "com.jzp.task.revolver"},
+    lazyInit = true)
+public class RevolverConfig {
+
+}
+
+```
+
+```$xslt
+// 启动扫描
+@SpringBootApplication
+@EnableAspectJAutoProxy
+@Import({RevolverConfig.class})
+public class WebServer {
+  public static void main(String[] args) {
+    SpringApplication.run(WebServer.class, args);
+  }
+}
+
+```
+
+```$xslt
+
+import com.jzp.task.revolver.annotation.RevolverRegister;
+import com.jzp.task.revolver.constants.ScheduleType;
+import com.jzp.task.revolver.context.Config;
+import com.jzp.task.revolver.storage.DBDataSource;
+import com.jzp.task.revolver.storage.TaskInfo;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+@Lazy(false)
+public class TaskClient {
+
+    // 初始化连接
+  private com.jzp.task.revolver.TaskClient taskClient;
+  public TaskClient() throws Exception {
+    init();
+  }
+  private synchronized void init() throws Exception {
+    if (taskClient == null) {
+      DBDataSource source = new DBDataSource(url, user, password);
+      source.setMaster(true);
+      dbDataSources.add(source);
+      Config config = new Config();
+      config.setZookeeperConnect("zk_url:port");
+      config.setProduct("myProduct");
+      config.setModule("myService);
+      config.setZookeeperRootPath("/test/");
+      taskClient = new com.jzp.task.revolver.TaskClient(dbDataSources, config);
+    }
+  }
+
+  public TaskInfo register(TaskInfo taskInfo) throws Exception {
+    return taskClient.register(taskInfo);
+  }
+
+  @RevolverRegister(cron = "20 * * * * ? ", handler = "taskHandler", scheduleType = ScheduleType.CRON, maxExecuteTimes = 10)
+  public void registerAnnotation() {
+   
+  }
+
+}
+
+```
+
+```$xslt
+实现接口
+import com.jzp.task.revolver.handler.ITaskHandler;
+import org.springframework.stereotype.Component;
+
+@Component("taskHandler")
+public class TaskHandler implements ITaskHandler {
+  @Override
+  public boolean execute(String s) throws Exception {
+    do something
+    return true;
+  }
+}
+
+```

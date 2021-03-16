@@ -3,7 +3,6 @@ package com.jzp.task.revolver.storage;
 import com.jzp.task.revolver.constants.TaskStatus;
 import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.handler.ILogger;
-import com.jzp.task.revolver.utils.IPUtils;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -300,7 +299,7 @@ public class TaskStorage implements ILogger {
   public List<TaskInfo> getWaitingTaskExceptMy() throws Exception {
     try (Connection con = getConnection(false)) {
       PreparedStatement psmt = con.prepareStatement(selectAllWaitingExceptHostSql);
-      psmt.setString(1, IPUtils.getHostAddress());
+      psmt.setString(1, Context.getHost());
       ResultSet rs = psmt.executeQuery();
       List<TaskInfo> list = new ArrayList<>();
       while (rs.next()) {
@@ -318,7 +317,7 @@ public class TaskStorage implements ILogger {
     try (Connection con = getConnection(false)) {
       PreparedStatement psmt = con.prepareStatement(selectWaitingBeforeNextTimeByHost);
       psmt.setLong(1, beforeNextTime);
-      psmt.setString(2, IPUtils.getHostAddress());
+      psmt.setString(2, Context.getHost());
       ResultSet rs = psmt.executeQuery();
       List<TaskInfo> list = new ArrayList<>();
       while (rs.next()) {

@@ -53,12 +53,12 @@ public class TaskUtil {
 
   public static boolean shouldRemove(TaskInfo taskInfo) {
     try {
-      boolean b = !IPUtils.getHostAddress().equalsIgnoreCase(taskInfo.getHost()) ||
+      boolean b = !Context.getHost().equalsIgnoreCase(taskInfo.getHost()) ||
           taskInfo.getExecuteTimes() >= taskInfo.getMaxExecuteTimes() ||
           !TaskStatus.needGoOn(taskInfo.getStatus());
       if (b) {
         LOGGER.warn("remove. [taskId={}, ip='{}', myIp='{}', myHost-'{}', nowSec={}",
-            taskInfo.getId(), taskInfo.getHost(), IPUtils.getHostAddress(), IPUtils.getHostName(),
+            taskInfo.getId(), taskInfo.getHost(), Context.getHost(), IPUtils.getHost(),
             Context.getTimeWheelIndex(taskInfo.getNextTime()));
       }
       return b;
@@ -66,7 +66,6 @@ public class TaskUtil {
       return false;
     }
   }
-
 
   public static boolean shouldDo(long millSec1, long millSec2) {
     return millSec1 / 1000 <= millSec2 / 1000;

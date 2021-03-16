@@ -32,10 +32,14 @@ public class IPUtils {
    * @return
    * @throws Exception
    */
-  public static String getHostAddress() throws Exception {
+  private static String getHostAddress() throws Exception {
     InetAddress addr = InetAddress.getLocalHost();
     String ip = addr.getHostAddress();
     return ip;
+  }
+
+  public static String getHost() throws Exception {
+    return getHostAddress();
   }
 
   /**
@@ -44,7 +48,7 @@ public class IPUtils {
    * @return
    * @throws Exception
    */
-  public static String getHostName() throws Exception {
+  private static String getHostName() throws Exception {
     InetAddress addr = InetAddress.getLocalHost();
     String hostName = addr.getHostName();
     return hostName;

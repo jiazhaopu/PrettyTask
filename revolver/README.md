@@ -39,26 +39,10 @@ Revolver 像左轮一样轻量，使用者不断向弹药库或者转轮输送�
 ## Use
 
 ```$xslt
-
-// 配置ComponentScan
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
-@ComponentScan(basePackages = {
-    "com.jzp.task.revolver"},
-    lazyInit = true)
-public class RevolverConfig {
-
-}
-
-```
-
-```$xslt
 // 启动扫描
 @SpringBootApplication
 @EnableAspectJAutoProxy
-@Import({RevolverConfig.class})
+@Import({RevolverSpringConfiguration.class})
 public class WebServer {
   public static void main(String[] args) {
     SpringApplication.run(WebServer.class, args);
@@ -103,13 +87,30 @@ public class TaskClient {
     }
   }
 
-  public TaskInfo register(TaskInfo taskInfo) throws Exception {
-    return taskClient.register(taskInfo);
+  public TaskInfo register(CronTask cronTask) {
+    try {
+
+      return taskClient.registerCron(cronTask);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+
   }
 
-  @RevolverRegister(cron = "20 * * * * ? ", handler = "taskHandler", scheduleType = ScheduleType.CRON, maxExecuteTimes = 10)
-  public void registerAnnotation() {
-   
+  @CronRegister(cron = "20 * * * * ? ", handler = TaskHandler.class, maxExecuteTime = 10)
+  public void cronRegister() {
+    
+  }
+
+  @FixedRegister(handler = TaskHandler.class, delayTime = 5)
+  public void fixedRegister() {
+    
+  }
+
+  @RetryRegister(handler = TaskHandler.class, maxExecuteTimes = 10)
+  public void retryRegister() {
+     
   }
 
 }

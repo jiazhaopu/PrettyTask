@@ -47,6 +47,7 @@ public abstract class TaskAbstractClient implements ILogger {
       log.info("Revolver have inited, return");
       return;
     }
+    Context.setHost(IPUtils.getHost());
     ZookeeperClient client = new ZookeeperClient(Context.getConfig());
     RegisterCenter registerCenter = new RegisterCenter(client);
     Context.setZookeeperClient(client);
@@ -86,7 +87,7 @@ public abstract class TaskAbstractClient implements ILogger {
       throw new Exception("Revolver TaskClient not Running , please call init function");
     }
     TaskUtil.checkRegisterAndStart(taskInfo);
-    taskInfo.setHost(IPUtils.getHostAddress());
+    taskInfo.setHost(Context.getHost());
     taskInfo.setNextTime(CronUtil.nextExecuteTime(taskInfo));
     try {
       taskInfo = taskStorage.register(taskInfo);

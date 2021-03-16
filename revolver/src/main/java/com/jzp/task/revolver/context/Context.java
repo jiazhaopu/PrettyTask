@@ -38,6 +38,8 @@ public class Context {
 
   private static final DelayQueue<FailOverItem> failOverDelayQueue = new DelayQueue<>();
 
+  private static String host;
+
   public static Config getConfig() {
     return config;
   }
@@ -115,6 +117,14 @@ public class Context {
 
   public static void setTaskClient(TaskClient taskClient) {
     Context.taskClient = taskClient;
+  }
+
+  public static String getHost() {
+    return host;
+  }
+
+  public static void setHost(String host) {
+    Context.host = host;
   }
 }
 

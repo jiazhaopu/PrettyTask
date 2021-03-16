@@ -4,7 +4,6 @@ import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.handler.ILogger;
 import com.jzp.task.revolver.registercenter.ZookeeperClient;
 import com.jzp.task.revolver.storage.TaskInfo;
-import com.jzp.task.revolver.utils.IPUtils;
 import org.apache.curator.framework.CuratorFramework;
 
 import java.util.ArrayList;
@@ -49,7 +48,7 @@ public class FailOverProcess implements Runnable, ILogger {
     List<Integer> list = new ArrayList<>();
     try {
       LOGGER.info("failover. [availableHost='{}']", availableHost);
-      String ip = IPUtils.getHostAddress();
+      String ip = Context.getHost();
       // 最新的 host 列表
       if (availableHost.size() == 0) {
         return new ArrayList<>();

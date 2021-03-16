@@ -59,15 +59,16 @@ public class RegisterCenter implements ILogger {
     zookeeperClient.createPersistentPath(getModulePath());
   }
 
-  public void createNodePath() throws Exception {
-    zookeeperClient.createEphemeralPath(getNodePath());
+  public void createNodePathSetHost() {
+    setDataForEphe(getNodePath(), Context.getHost());
+//    zookeeperClient.createEphemeralPath(getNodePath());
   }
 
   public void registerNode() throws Exception {
     createRevolverPath();
     createProductPath();
     createModulePath();
-    createNodePath();
+    createNodePathSetHost();
   }
 
   public void beatsAndWatcher() throws Exception {
@@ -76,12 +77,12 @@ public class RegisterCenter implements ILogger {
     new Watcher().start(getModulePath());
   }
 
-  public Boolean setDataForEphe(String configInfo) {
+  public Boolean setDataForEphe(String path, String name) {
     try {
-      zookeeperClient.setDataForEphe(getNodePath(), configInfo);
+      zookeeperClient.setDataForEphe(path, name);
       return true;
     } catch (Exception e) {
-      logException(configInfo, e);
+      logException(name, e);
     }
     return false;
   }

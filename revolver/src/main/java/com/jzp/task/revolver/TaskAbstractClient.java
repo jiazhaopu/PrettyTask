@@ -85,14 +85,14 @@ public abstract class TaskAbstractClient implements ILogger {
       log.error("Revolver not Running , please call init function");
       throw new Exception("Revolver TaskClient not Running , please call init function");
     }
-    taskInfo.setHost(IPUtils.getHostAddress());
     TaskUtil.checkRegisterAndStart(taskInfo);
+    taskInfo.setHost(IPUtils.getHostAddress());
+    taskInfo.setNextTime(CronUtil.nextExecuteTime(taskInfo));
     try {
       taskInfo = taskStorage.register(taskInfo);
       taskProcessor.put(taskInfo);
     } catch (Exception ex) {
-      // TODO Auto-generated catch block
-      ex.printStackTrace();
+      logException(taskInfo.toString(), ex);
       throw ex;
     }
     return taskInfo;

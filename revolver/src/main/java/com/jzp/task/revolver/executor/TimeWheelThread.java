@@ -34,8 +34,6 @@ public class TimeWheelThread extends Thread implements ILogger {
         TaskInfo taskInfo = Context.getTaskStorage().getTaskById(id);
         // 判断是否应该执行
         if (TaskUtil.shouldRemove(taskInfo)) {
-          LOGGER.info("remove. [taskId={}, ip='{}',nowSec={}",
-              id, taskInfo.getHost(), Context.getTimeWheelIndex(time));
           continue;
         }
         boolean shouldDo = TaskUtil.shouldDo(taskInfo.getNextTime(), time);

@@ -3,7 +3,8 @@ package com.jzp.task.revolver.storage;
 public class RetryTask extends BaseTask {
 
   private String cron;
-  private Integer maxTimes;
+
+  private Integer maxExecuteTimes;
 
   public String getCron() {
     return cron;
@@ -13,11 +14,11 @@ public class RetryTask extends BaseTask {
     this.cron = cron;
   }
 
-  public Integer getMaxTimes() {
-    return maxTimes;
+  public Integer getMaxExecuteTimes() {
+    return maxExecuteTimes;
   }
 
-  public void setMaxTimes(Integer maxTimes) {
-    this.maxTimes = maxTimes;
+  public void setMaxExecuteTimes(Integer maxExecuteTimes) {
+    this.maxExecuteTimes = maxExecuteTimes;
   }
 }

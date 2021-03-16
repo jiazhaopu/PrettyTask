@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.ParseException;
 import java.util.Date;
 
 public class CronUtil {
@@ -32,6 +33,12 @@ public class CronUtil {
     }
 
     return true;
+  }
+
+  public static long nextExecuteTime(String cron) throws ParseException {
+    CronExpression cronExpression = new CronExpression(cron);
+    Date nextDate = cronExpression.getNextValidTimeAfter(new Date());
+    return nextDate.getTime();
   }
 
   public static long nextExecuteTime(TaskInfo taskInfo) throws Exception {

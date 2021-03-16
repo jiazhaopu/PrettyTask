@@ -1,32 +1,29 @@
 package com.jzp.task.revolver.annotation;
 
 
-import com.jzp.task.revolver.constants.ScheduleType;
+import com.jzp.task.revolver.handler.ITaskHandler;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.concurrent.TimeUnit;
 
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface RevolverRegister {
+public @interface FixedRegister {
 
   Class<? extends Throwable>[] registerFor() default {Exception.class};
 
-  String cron() default "";
+  long delayTime();
 
-  long nextTime() default 0;
+  TimeUnit delayUnit() default TimeUnit.SECONDS;
 
-  String handler();
-
-  ScheduleType scheduleType();
+  Class<? extends ITaskHandler> handler();
 
   String content() default "";
 
-  // 0 表示不限次数
-  int maxExecuteTimes() default 0;
-
+  String name() default "";
 }

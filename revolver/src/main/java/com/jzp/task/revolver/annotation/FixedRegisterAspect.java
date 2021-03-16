@@ -3,7 +3,7 @@ package com.jzp.task.revolver.annotation;
 
 import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.log.ILogger;
-import com.jzp.task.revolver.storage.TaskInfo;
+import com.jzp.task.revolver.storage.FixedTask;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
@@ -22,9 +22,9 @@ import java.lang.reflect.Method;
  */
 @Component
 @Aspect
-public class RegisterAspect implements ILogger {
+public class FixedRegisterAspect implements ILogger {
 
-  @Pointcut("@annotation(com.jzp.task.revolver.annotation.RevolverRegister)")
+  @Pointcut("@annotation(com.jzp.task.revolver.annotation.FixedRegister)")
   private void doIntercept() {
   }
 
@@ -32,14 +32,14 @@ public class RegisterAspect implements ILogger {
   public void afterThrowing(JoinPoint point, Throwable ex) throws Exception {
     MethodSignature methodSignature = (MethodSignature) point.getSignature();
     Method method = methodSignature.getMethod();
-    RevolverRegister register = AnnotationUtils.getAnnotation(method, RevolverRegister.class);
+    FixedRegister register = AnnotationUtils.getAnnotation(method, FixedRegister.class);
     if (register == null) {
       return;
     }
     catchAfterThrowing(register, ex);
   }
 
-  private void catchAfterThrowing(RevolverRegister register, Throwable e) throws Exception {
+  private void catchAfterThrowing(FixedRegister register, Throwable e) throws Exception {
     if (e == null) {
       return;
     }
@@ -48,15 +48,14 @@ public class RegisterAspect implements ILogger {
     }
   }
 
-  private void register(RevolverRegister register) throws Exception {
-    TaskInfo taskInfo = new TaskInfo();
+  private void register(FixedRegister register) throws Exception {
+    FixedTask taskInfo = new FixedTask();
     taskInfo.setContent(register.content());
-    taskInfo.setCron(register.cron());
     taskInfo.setHandler(register.handler());
-    taskInfo.setNextTime(register.nextTime());
-    taskInfo.setMaxExecuteTimes(register.maxExecuteTimes());
-    taskInfo.setScheduleType(register.scheduleType().getCode());
-    Context.getTaskClient().register(taskInfo);
+    taskInfo.setName(register.name());
+    long t = register.delayUnit().toMillis(register.delayTime());
+    taskInfo.setExecuteTime(System.currentTimeMillis() + t);
+    Context.getTaskClient().registerFixed(taskInfo);
   }
 
 

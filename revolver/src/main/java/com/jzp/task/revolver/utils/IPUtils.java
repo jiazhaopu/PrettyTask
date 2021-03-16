@@ -25,7 +25,7 @@ public class IPUtils {
   private static final byte SECTION_168 = (byte) 0xA8;
 
   private static final List<String> localIpList = Arrays.asList("127.0.0.1", "localhost");
- 
+
   /**
    * 获取本机ip
    *
@@ -46,7 +46,7 @@ public class IPUtils {
    */
   public static String getHostName() throws Exception {
     InetAddress addr = InetAddress.getLocalHost();
-    String hostName = addr.getHostName().toString();
+    String hostName = addr.getHostName();
     return hostName;
   }
 

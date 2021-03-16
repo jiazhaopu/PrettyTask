@@ -36,7 +36,7 @@ public class TaskExecuteCallBack implements ITaskCallBack, ILogger {
     }
     try {
       Context.getTaskStorage().updateExecute(update);
-      LOGGER.info("TaskExecuteCallBack end. [taskId={}, success={}, nextTime={}]",
+      LOGGER.info("TaskExecuteCallBack end. [taskId={}, result={}, nextTime={}]",
           taskInfo.getId(), resultEnum, new Date(taskInfo.getNextTime()));
     } catch (Exception e) {
       logException(taskInfo.toString(), e);

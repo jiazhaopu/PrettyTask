@@ -8,7 +8,7 @@ import com.jzp.task.revolver.storage.DBDataSource;
 import com.jzp.task.revolver.storage.FixedTask;
 import com.jzp.task.revolver.storage.RetryTask;
 import com.jzp.task.revolver.storage.TaskInfo;
-import org.springframework.validation.annotation.Validated;
+import com.jzp.task.revolver.utils.TaskUtil;
 
 import java.util.List;
 
@@ -31,7 +31,8 @@ public class TaskClient extends TaskAbstractClient {
   }
 
 
-  public TaskInfo registerCron(@Validated CronTask cronTask) throws Exception {
+  public TaskInfo registerCron(CronTask cronTask) throws Exception {
+    TaskUtil.check(cronTask);
     TaskInfo info = new TaskInfo();
     info.setCron(cronTask.getCron());
     info.setName(cronTask.getName());
@@ -42,8 +43,9 @@ public class TaskClient extends TaskAbstractClient {
     return super.register(info);
   }
 
-  public TaskInfo registerFixed(@Validated FixedTask fixedTask)
+  public TaskInfo registerFixed(FixedTask fixedTask)
       throws Exception {
+    TaskUtil.check(fixedTask);
     TaskInfo info = new TaskInfo();
     info.setNextTime(fixedTask.getExecuteTime());
     info.setName(fixedTask.getName());
@@ -55,13 +57,14 @@ public class TaskClient extends TaskAbstractClient {
   }
 
 
-  public TaskInfo registerRetry(@Validated RetryTask retryTask)
+  public TaskInfo registerRetry(RetryTask retryTask)
       throws Exception {
+    TaskUtil.check(retryTask);
     TaskInfo info = new TaskInfo();
     info.setName(retryTask.getName());
     info.setCron(retryTask.getCron());
     info.setScheduleType(ScheduleType.RETRY.getCode());
-    info.setMaxExecuteTimes(retryTask.getMaxTimes());
+    info.setMaxExecuteTimes(retryTask.getMaxExecuteTimes());
     info.setHandler(retryTask.getHandler().getName());
     info.setContent(retryTask.getContent());
     return super.register(info);

@@ -1,10 +1,8 @@
 package com.jzp.task.revolver.storage;
 
-import com.jzp.task.revolver.constants.ScheduleType;
 import com.jzp.task.revolver.constants.TaskStatus;
 import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.log.ILogger;
-import com.jzp.task.revolver.utils.CronUtil;
 import com.jzp.task.revolver.utils.IPUtils;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
@@ -130,11 +128,6 @@ public class TaskStorage implements ILogger {
 
   public TaskInfo register(TaskInfo taskInfo) throws Exception {
 
-    if (ScheduleType.FIXED_TIME.getCode().equals(taskInfo.getScheduleType())) {
-      taskInfo.setMaxExecuteTimes(1);
-    }
-
-    taskInfo.setNextTime(CronUtil.nextExecuteTime(taskInfo));
     try (Connection con = getConnection(true)) {
       PreparedStatement psmt = con.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS);
       DatabaseMetaData metaData = con.getMetaData();
@@ -193,7 +186,7 @@ public class TaskStorage implements ILogger {
 
   public int updateStatus(int id, int fromStatus, int toStatus) throws Exception {
     StringBuilder builder = new StringBuilder("update ").append(tableName).append(" set");
-    builder.append(" status=").append(toStatus).append(" where id").append(id);
+    builder.append(" status=").append(toStatus).append(" where id=").append(id);
     builder.append(" and status=").append(fromStatus);
     return executeUpdate(builder.toString());
   }
@@ -202,7 +195,7 @@ public class TaskStorage implements ILogger {
     StringBuilder builder = new StringBuilder("update ").append(tableName).append(" set");
     builder.append(" status=").append(TaskStatus.NEW.getCode()).append(",");
     builder.append(" next_time=").append(nextTime);
-    builder.append(" where id").append(id);
+    builder.append(" where id=").append(id);
     builder.append(" and status=").append(fromStatus);
     return executeUpdate(builder.toString());
   }
@@ -211,7 +204,7 @@ public class TaskStorage implements ILogger {
   public int updateNextTime(int id, long nextTime) throws Exception {
     StringBuilder builder = new StringBuilder("update ").append(tableName).append(" set");
     builder.append(" next_time=").append(nextTime);
-    builder.append(" where id").append(id);
+    builder.append(" where id=").append(id);
     return executeUpdate(builder.toString());
   }
 

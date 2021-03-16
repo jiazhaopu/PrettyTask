@@ -1,7 +1,7 @@
-package com.jzp.task.revolver.register;
+package com.jzp.task.revolver.registercenter;
 
 import com.jzp.task.revolver.context.Context;
-import com.jzp.task.revolver.log.ILogger;
+import com.jzp.task.revolver.handler.ILogger;
 
 /**
  * Prevent the heartbeat from disconnecting when the system is suspended or the network is shaking, and the node is lost

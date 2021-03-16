@@ -2,7 +2,7 @@ package com.jzp.task.revolver.storage;
 
 import com.jzp.task.revolver.constants.TaskStatus;
 import com.jzp.task.revolver.context.Context;
-import com.jzp.task.revolver.log.ILogger;
+import com.jzp.task.revolver.handler.ILogger;
 import com.jzp.task.revolver.utils.IPUtils;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;

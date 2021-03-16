@@ -1,8 +1,8 @@
 package com.jzp.task.revolver.failover;
 
 import com.jzp.task.revolver.context.Context;
-import com.jzp.task.revolver.log.ILogger;
-import com.jzp.task.revolver.register.ZookeeperClient;
+import com.jzp.task.revolver.handler.ILogger;
+import com.jzp.task.revolver.registercenter.ZookeeperClient;
 import com.jzp.task.revolver.storage.TaskInfo;
 import com.jzp.task.revolver.utils.IPUtils;
 import org.apache.curator.framework.CuratorFramework;

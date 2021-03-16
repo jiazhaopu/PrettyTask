@@ -55,7 +55,7 @@ public class Test {
       RetryTask taskInfo = new RetryTask();
       taskInfo.setHandler(TaskHandler.class);
       taskInfo.setCron("20 * * * * ? ");
-      taskInfo.setMaxTimes(10);
+      taskInfo.setMaxExecuteTimes(10);
       taskInfo.setName("testTask");
       taskInfo.setContent(taskInfo.toString());
       TaskInfo taskInfo1 = taskClient.registerRetry(taskInfo);

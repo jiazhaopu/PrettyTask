@@ -2,7 +2,7 @@ package com.jzp.task.revolver.annotation;
 
 
 import com.jzp.task.revolver.context.Context;
-import com.jzp.task.revolver.log.ILogger;
+import com.jzp.task.revolver.handler.ILogger;
 import com.jzp.task.revolver.storage.RetryTask;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;

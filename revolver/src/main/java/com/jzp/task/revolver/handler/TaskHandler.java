@@ -1,7 +1,6 @@
 package com.jzp.task.revolver.handler;
 
 import com.jzp.task.revolver.constants.ResultEnum;
-import com.jzp.task.revolver.log.ILogger;
 
 public class TaskHandler implements ITaskHandler, ILogger {
 

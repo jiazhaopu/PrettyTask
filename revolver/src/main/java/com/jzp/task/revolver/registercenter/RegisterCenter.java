@@ -1,15 +1,15 @@
-package com.jzp.task.revolver.register;
+package com.jzp.task.revolver.registercenter;
 
 import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.executor.ThreadPoolHelper;
-import com.jzp.task.revolver.log.ILogger;
+import com.jzp.task.revolver.handler.ILogger;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class RegisterCenter implements ILogger {
-  
+
   private static final String REVOLVER_PATH = "revolver";
 
   private static final String NODE_PATH = UUID.randomUUID().toString();

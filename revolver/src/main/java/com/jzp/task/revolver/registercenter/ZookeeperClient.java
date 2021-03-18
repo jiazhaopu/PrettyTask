@@ -8,7 +8,6 @@ import org.apache.curator.framework.recipes.cache.NodeCache;
 import org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -201,20 +200,6 @@ public class ZookeeperClient implements AutoCloseable, DisposableBean {
   public boolean checkExists(String path) throws Exception {
     try {
       return this.curatorFramework.checkExists()
-          .forPath(path) != null;
-    } catch (Exception e) {
-      log.error("check exists path:{} fail", path, e);
-      throw e;
-    }
-  }
-
-  /**
-   * 判断某个path是否存在
-   */
-  public boolean checkExists(String path, Watcher watcher) throws Exception {
-    try {
-      return this.curatorFramework.checkExists()
-          .usingWatcher(watcher)
           .forPath(path) != null;
     } catch (Exception e) {
       log.error("check exists path:{} fail", path, e);

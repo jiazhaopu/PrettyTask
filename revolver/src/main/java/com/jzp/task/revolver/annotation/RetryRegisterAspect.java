@@ -4,6 +4,7 @@ package com.jzp.task.revolver.annotation;
 import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.handler.ILogger;
 import com.jzp.task.revolver.storage.RetryTask;
+import com.jzp.task.revolver.utils.AnnotationUtil;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
@@ -36,22 +37,22 @@ public class RetryRegisterAspect implements ILogger {
     if (register == null) {
       return;
     }
-    catchAfterThrowing(register, ex);
+    catchAfterThrowing(point, register, ex);
   }
 
-  private void catchAfterThrowing(RetryRegister register, Throwable e) throws Exception {
+  private void catchAfterThrowing(JoinPoint point, RetryRegister register, Throwable e) throws Exception {
     if (e == null) {
       return;
     }
     if (register.registerFor().length > 0) {
-      register(register);
+      register(point, register);
     }
   }
 
-  private void register(RetryRegister register) throws Exception {
+  private void register(JoinPoint point, RetryRegister register) throws Exception {
     RetryTask taskInfo = new RetryTask();
-    taskInfo.setContent(register.content());
     taskInfo.setCron(register.cron());
+    taskInfo.setContent(AnnotationUtil.getParaStringValue(point));
     taskInfo.setHandler(register.handler());
     taskInfo.setName(register.name());
     taskInfo.setMaxExecuteTimes(register.maxExecuteTimes());

@@ -20,6 +20,16 @@ public class ApplicationContextHelper implements ApplicationContextAware {
     context = applicationContext;
   }
 
+  public static Object getBeanByClassName(String beanName) {
+
+    try {
+      Class clz = Class.forName(beanName);
+      return getBean(clz);
+    } catch (Exception e) {
+    }
+    return null;
+  }
+
   public static Object getBean(String beanName) {
 
     try {

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.sql.DataSource;
@@ -358,6 +359,30 @@ public class TaskStorage implements ILogger {
       } catch (Exception e) {
         logException(updateSql, e);
       }
+    }
+  }
+
+
+  public Map<String, Integer> countWaitingHost() throws Exception {
+    StringBuilder builder = new StringBuilder();
+    builder.append("select host,count(host) as count from ").append(tableName).append(" where status in (");
+    builder.append(needGoOnStatus());
+    builder.append(") AND (execute_times<max_execute_times or max_execute_times = 0) group by host");
+    ResultSet rs = executeSelect(builder.toString());
+    Map<String, Integer> countMap = new HashMap<>();
+    while (rs.next()) {
+      countMap.put(rs.getString("host"), rs.getInt("count"));
+    }
+    return countMap;
+  }
+
+  public ResultSet executeSelect(String query) throws Exception {
+    try (Connection con = getConnection(false)) {
+      PreparedStatement psmt = con.prepareStatement(query);
+      return psmt.executeQuery();
+    } catch (Exception ex) {
+      logException(query, ex);
+      throw ex;
     }
   }
 

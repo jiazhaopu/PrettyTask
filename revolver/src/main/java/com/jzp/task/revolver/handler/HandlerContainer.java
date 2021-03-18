@@ -1,5 +1,6 @@
 package com.jzp.task.revolver.handler;
 
+
 import com.jzp.task.revolver.utils.ApplicationContextHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,14 +17,12 @@ public class HandlerContainer {
   private static final Map<String, Object> nameClassContainer = new ConcurrentHashMap<>();
 
   public static <T> T getBean(String name) {
-    Object o = ApplicationContextHelper.getBean(name);
+
+    Object o = ApplicationContextHelper.getBeanByClassName(name);
     if (o == null) {
       try {
-        Class clz = Class.forName(name);
-        o = ApplicationContextHelper.getBean(clz);
+        o = ApplicationContextHelper.getBean(name);
       } catch (Exception e) {
-        e.printStackTrace();
-
       }
       if (o == null) {
         return get(name);

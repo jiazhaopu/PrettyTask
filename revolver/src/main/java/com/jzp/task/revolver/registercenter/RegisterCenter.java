@@ -5,6 +5,8 @@ import com.jzp.task.revolver.executor.ThreadPoolHelper;
 import com.jzp.task.revolver.handler.ILogger;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -85,5 +87,28 @@ public class RegisterCenter implements ILogger {
       logException(name, e);
     }
     return false;
+  }
+
+
+  public List<String> getAvailableHost() {
+    String path = Context.getRegisterCenter().getModulePath();
+    List<String> list;
+    try {
+      list = zookeeperClient.getCuratorFramework().getChildren().forPath(path);
+    } catch (Exception e) {
+      logException(path, e);
+      return null;
+    }
+    LOGGER.info("children for path. [path='{}', children='{}']", path, list);
+    List<String> availableHost = new ArrayList<>();
+    for (String children : list) {
+      String childrenPath = ZookeeperClient.getPath(path, children);
+      try {
+        availableHost.add(zookeeperClient.getData(childrenPath));
+      } catch (Exception e) {
+        logException(path, e);
+      }
+    }
+    return availableHost;
   }
 }

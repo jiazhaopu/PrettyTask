@@ -7,6 +7,9 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * 当任务没有进入过线程池时，轮询选择下一个线程池，一旦选择了线程池就在固定线程池执行。是对hash策略的优化，可以控制任务的并发度
+ */
 public class BalanceSelector implements IPoolSelector {
 
   private final ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();

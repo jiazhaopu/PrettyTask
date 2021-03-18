@@ -4,6 +4,7 @@ package com.jzp.task.revolver.annotation;
 import com.jzp.task.revolver.context.Context;
 import com.jzp.task.revolver.handler.ILogger;
 import com.jzp.task.revolver.storage.CronTask;
+import com.jzp.task.revolver.utils.AnnotationUtil;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
@@ -32,31 +33,33 @@ public class CronRegisterAspect implements ILogger {
   public void afterThrowing(JoinPoint point, Throwable ex) throws Exception {
     MethodSignature methodSignature = (MethodSignature) point.getSignature();
     Method method = methodSignature.getMethod();
-    CronRegister register = AnnotationUtils.getAnnotation(method, CronRegister.class);
+    CronRegister
+        register =
+        AnnotationUtils.getAnnotation(method, CronRegister.class);
     if (register == null) {
       return;
     }
-    catchAfterThrowing(register, ex);
+    catchAfterThrowing(point, register, ex);
   }
 
-  private void catchAfterThrowing(CronRegister register, Throwable e) throws Exception {
+  private void catchAfterThrowing(JoinPoint point, CronRegister register,
+      Throwable e) throws Exception {
     if (e == null) {
       return;
     }
     if (register.registerFor().length > 0) {
-      register(register);
+      register(point, register);
     }
   }
 
-  private void register(CronRegister register) throws Exception {
+  private void register(JoinPoint point, CronRegister register)
+      throws Exception {
     CronTask taskInfo = new CronTask();
-    taskInfo.setContent(register.content());
+    taskInfo.setContent(AnnotationUtil.getParaStringValue(point));
     taskInfo.setCron(register.cron());
     taskInfo.setHandler(register.handler());
     taskInfo.setName(register.name());
     taskInfo.setMaxExecuteTimes(register.maxExecuteTime());
     Context.getTaskClient().registerCron(taskInfo);
   }
-
-
 }
